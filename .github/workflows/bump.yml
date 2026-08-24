@@ -1,0 +1,69 @@
+name: bump
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - name: Check for a new VictoriaMetrics release
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest="$(gh api repos/VictoriaMetrics/VictoriaMetrics/releases/latest --jq .tag_name)"
+          latest="${latest#v}"
+          current="$(sed -n 's/^  version "\(.*\)"$/\1/p' Formula/vmctl.rb)"
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          if [ "$latest" = "$current" ]; then
+            echo "Formula is up to date ($current)."
+          fi
+
+      - name: Update formula
+        if: steps.check.outputs.latest != steps.check.outputs.current
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.check.outputs.latest }}
+        run: |
+          set -euo pipefail
+          for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
+            url="https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v${VERSION}/vmutils-${asset}-v${VERSION}.tar.gz"
+            curl --fail --location --silent --output "/tmp/${asset}.tar.gz" "$url"
+            shasum -a 256 "/tmp/${asset}.tar.gz" | cut -d' ' -f1 > "/tmp/${asset}.sha256"
+          done
+          old_version="$(sed -n 's/^  version "\(.*\)"$/\1/p' Formula/vmctl.rb)"
+          sed -i "s/^  version \"${old_version}\"$/  version \"${VERSION}\"/" Formula/vmctl.rb
+          for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
+            sha="$(cat "/tmp/${asset}.sha256")"
+            awk -v asset="$asset" -v sha="$sha" '
+              index($0, "vmutils-" asset "-") { print; getline; sub(/"[0-9a-f]{64}"/, "\"" sha "\"") }
+              { print }
+            ' Formula/vmctl.rb > Formula/vmctl.rb.new
+            mv Formula/vmctl.rb.new Formula/vmctl.rb
+          done
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          branch="bump-vmctl-${VERSION}"
+          git checkout -b "$branch"
+          git commit -am "vmctl: update to ${VERSION}"
+          git push origin "$branch"
+          gh pr create \
+            --title "vmctl: update to ${VERSION}" \
+            --body "Automated update to VictoriaMetrics v${VERSION}. Checksums computed from the release assets." \
+            --base main --head "$branch"
+
+      - name: Run CI on the bump branch
+        if: steps.check.outputs.latest != steps.check.outputs.current
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run test.yml --ref "bump-vmctl-${{ steps.check.outputs.latest }}"
