@@ -3,9 +3,10 @@
 Homebrew formulae for VictoriaMetrics tools, built from the official release binaries.
 
 ## Install:
-Add the tap first:
+Update and add the tap first:
 
 ```sh
+brew update
 brew tap victoriametrics/tap
 ```
 
