@@ -22,6 +22,8 @@ jobs:
       - name: Set up Homebrew
         if: runner.os == 'Linux'
         uses: Homebrew/actions/setup-homebrew@a657b8b0cd35d0f65cce41fce9b24cf054b49869  # 2026.08.24.1
+        with:
+          token: ${{ github.token }}
 
       - name: Tap this checkout
         run: |
