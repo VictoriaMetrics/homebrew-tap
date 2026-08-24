@@ -51,6 +51,9 @@ jobs:
             ' Formula/vmctl.rb > Formula/vmctl.rb.new
             mv Formula/vmctl.rb.new Formula/vmctl.rb
           done
+          changelog_line="* FEATURE: [vmctl](https://docs.victoriametrics.com/victoriametrics/vmctl/): update to [v${VERSION}](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v${VERSION})."
+          awk -v line="$changelog_line" '{ print } /^## tip$/ { getline; print; print line }' CHANGELOG.md > CHANGELOG.md.new
+          mv CHANGELOG.md.new CHANGELOG.md
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           branch="bump-vmctl-${VERSION}"
