@@ -32,14 +32,14 @@ jobs:
 
       - name: Install
         run: |
-          for formula in vmctl victoriametrics victorialogs; do
-            brew install "victoriametrics/tap/${formula}"
+          for f in Formula/*.rb; do
+            brew install "victoriametrics/tap/$(basename "$f" .rb)"
           done
 
       - name: Test
         run: |
-          for formula in vmctl victoriametrics victorialogs; do
-            brew test "victoriametrics/tap/${formula}"
+          for f in Formula/*.rb; do
+            brew test "victoriametrics/tap/$(basename "$f" .rb)"
           done
 
       - name: Style

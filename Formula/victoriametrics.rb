@@ -72,12 +72,20 @@ class Victoriametrics < Formula
                 "-httpListenAddr=127.0.0.1:#{http_port}",
                 "-promscrape.config=#{testpath}/scrape.yml",
                 "-storageDataPath=#{testpath}/victoriametrics-data"
-    sleep 5
+    30.times do
+      break if quiet_system("curl", "-fsS", "-o", File::NULL, "127.0.0.1:#{http_port}")
+
+      sleep 1
+    end
     assert_match "Single-node VictoriaMetrics", shell_output("curl -s 127.0.0.1:#{http_port}")
 
     assert_match version.to_s, shell_output("#{bin}/victoria-metrics --version")
   ensure
-    Process.kill("TERM", pid)
+    begin
+      Process.kill("TERM", pid)
+    rescue Errno::ESRCH
+      nil
+    end
     Process.wait(pid)
   end
 end

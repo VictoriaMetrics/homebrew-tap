@@ -1,5 +1,9 @@
 name: bump
 
+# Groups sharing an upstream repo bump together in one PR. If both groups
+# release on the same day, the second merged PR may need a manual rebase of
+# its CHANGELOG/README hunks; this is accepted.
+
 on:
   schedule:
     - cron: "17 6 * * *"
@@ -18,10 +22,10 @@ jobs:
         include:
           - group: victoriametrics
             repo: VictoriaMetrics/VictoriaMetrics
-            formulas: "vmctl:vmutils victoriametrics:victoria-metrics"
+            formulas: "vmctl:vmutils:victoriametrics/vmctl victoriametrics:victoria-metrics:victoriametrics/single-server-victoriametrics"
           - group: victorialogs
             repo: VictoriaMetrics/VictoriaLogs
-            formulas: "victorialogs:victoria-logs"
+            formulas: "victorialogs:victoria-logs:victorialogs"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -37,24 +41,31 @@ jobs:
           latest="$(gh api "repos/${REPO}/releases/latest" --jq .tag_name)"
           latest="${latest#v}"
           behind=""
+          suffix=""
           for pair in $FORMULAS; do
             formula="${pair%%:*}"
             current="$(sed -n 's/^  version "\(.*\)"$/\1/p' "Formula/${formula}.rb")"
             if [ "$(printf '%s\n' "$current" "$latest" | sort -V | tail -1)" != "$current" ]; then
               behind="$behind $pair"
+              suffix="${suffix}-${formula}"
             fi
           done
+          branch="bump-${latest}${suffix}"
           bump=true
+          verify_existing=false
           if [ -z "$behind" ]; then
             echo "All formulas are current for ${REPO} (latest: $latest)."
             bump=false
-          elif git ls-remote --exit-code origin "refs/heads/bump-${{ matrix.group }}-${latest}" >/dev/null 2>&1; then
-            echo "Bump branch for $latest already exists."
+          elif git ls-remote --exit-code origin "refs/heads/${branch}" >/dev/null 2>&1; then
+            echo "Bump branch ${branch} already exists; re-verifying its CI instead of re-pushing."
             bump=false
+            verify_existing=true
           fi
           {
             echo "latest=$latest"
             echo "bump=$bump"
+            echo "verify_existing=$verify_existing"
+            echo "branch=$branch"
             echo "behind=${behind# }"
           } >> "$GITHUB_OUTPUT"
 
@@ -70,7 +81,9 @@ jobs:
           names=""
           for pair in $BEHIND; do
             formula="${pair%%:*}"
-            prefix="${pair#*:}"
+            rest="${pair#*:}"
+            prefix="${rest%%:*}"
+            docs="${rest#*:}"
             file="Formula/${formula}.rb"
             for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
               url="https://github.com/${REPO}/releases/download/v${VERSION}/${prefix}-${asset}-v${VERSION}.tar.gz"
@@ -95,14 +108,14 @@ jobs:
             sed -i 's/^| `'"${formula}"'` | '"${old_version}"' |/| `'"${formula}"'` | '"${VERSION}"' |/' README.md
             # shellcheck disable=SC2016
             grep -qF '| `'"${formula}"'` | '"${VERSION}"' |' README.md
-            changelog_line="* FEATURE: [${formula}](https://docs.victoriametrics.com/): update to [v${VERSION}](https://github.com/${REPO}/releases/tag/v${VERSION})."
+            changelog_line="* FEATURE: [${formula}](https://docs.victoriametrics.com/${docs}/): update to [v${VERSION}](https://github.com/${REPO}/releases/tag/v${VERSION})."
             awk -v line="$changelog_line" '{ print } /^## tip$/ { getline; print; print line }' CHANGELOG.md > CHANGELOG.md.new
             mv CHANGELOG.md.new CHANGELOG.md
             names="${names:+$names, }${formula}"
           done
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          branch="bump-${{ matrix.group }}-${VERSION}"
+          branch="${{ steps.check.outputs.branch }}"
           git checkout -b "$branch"
           git commit -am "${names}: update to ${VERSION}"
           git push origin "$branch"
@@ -112,14 +125,23 @@ jobs:
             --base main --head "$branch"
 
       - name: Run CI on the bump branch and wait for it
-        if: steps.check.outputs.bump == 'true'
+        if: steps.check.outputs.bump == 'true' || steps.check.outputs.verify_existing == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.check.outputs.latest }}
         run: |
           set -euo pipefail
-          branch="bump-${{ matrix.group }}-${VERSION}"
+          branch="${{ steps.check.outputs.branch }}"
+          dispatched_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           gh workflow run test.yml --ref "$branch"
-          sleep 20
-          run_id="$(gh run list --workflow test.yml --branch "$branch" --limit 1 --json databaseId --jq '.[0].databaseId')"
+          run_id=""
+          for _ in $(seq 1 24); do
+            sleep 5
+            run_id="$(gh run list --workflow test.yml --branch "$branch" --event workflow_dispatch \
+              --created ">=${dispatched_at}" --limit 1 --json databaseId --jq '.[0].databaseId // empty')"
+            [ -n "$run_id" ] && break
+          done
+          if [ -z "$run_id" ]; then
+            echo "Dispatched test run never appeared for ${branch}." >&2
+            exit 1
+          fi
           gh run watch "$run_id" --exit-status
