@@ -26,9 +26,9 @@ jobs:
           token: ${{ github.token }}
 
       - name: Tap this checkout
+        # setup-homebrew already links the checkout as the tap on Linux; tap only when absent
         run: |
-          brew untap victoriametrics/tap 2>/dev/null || true
-          brew tap victoriametrics/tap "$GITHUB_WORKSPACE"
+          brew tap | grep -q '^victoriametrics/tap$' || brew tap victoriametrics/tap "$GITHUB_WORKSPACE"
 
       - name: Install
         run: brew install victoriametrics/tap/vmctl
