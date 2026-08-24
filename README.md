@@ -2,19 +2,17 @@
 
 Homebrew formulae for VictoriaMetrics tools, built from the official release binaries.
 
-## Install
-
-```sh
-brew install victoriametrics/tap/vmctl
-```
-
-Or tap first, then install:
+## Install:
+Add the tap first:
 
 ```sh
 brew tap victoriametrics/tap
-brew install vmctl
 ```
 
+Then install the desired package (`vmctl` in this example):
+```sh
+brew install vmctl
+```
 ## Formulae
 
 | Formula | Version | Description |
