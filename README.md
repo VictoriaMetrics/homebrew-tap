@@ -17,9 +17,9 @@ brew install vmctl
 
 ## Formulae
 
-| Formula | Description |
-|---------|-------------|
-| `vmctl` | Command-line tool for migrating and verifying VictoriaMetrics data. [Docs](https://docs.victoriametrics.com/victoriametrics/vmctl/) |
+| Formula | Version | Description |
+|---------|---------|-------------|
+| `vmctl` | 1.150.0 | Command-line tool for migrating and verifying VictoriaMetrics data. [Docs](https://docs.victoriametrics.com/victoriametrics/vmctl/) |
 
 The binary is installed as `vmctl`. In the release tarballs the same binary is named `vmctl-prod`.
 
