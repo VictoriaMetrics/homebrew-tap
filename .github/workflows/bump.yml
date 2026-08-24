@@ -1,5 +1,9 @@
 name: bump
 
+# Groups sharing an upstream repo bump together in one PR. If both groups
+# release on the same day, the second merged PR may need a manual rebase of
+# its CHANGELOG/README hunks; this is accepted.
+
 on:
   schedule:
     - cron: "17 6 * * *"
@@ -12,84 +16,132 @@ permissions:
 
 jobs:
   bump:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: victoriametrics
+            repo: VictoriaMetrics/VictoriaMetrics
+            formulas: "vmctl:vmutils:victoriametrics/vmctl victoriametrics:victoria-metrics:victoriametrics/single-server-victoriametrics"
+          - group: victorialogs
+            repo: VictoriaMetrics/VictoriaLogs
+            formulas: "victorialogs:victoria-logs:victorialogs"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
-      - name: Check for a new VictoriaMetrics release
+      - name: Check for a new release
         id: check
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ matrix.repo }}
+          FORMULAS: ${{ matrix.formulas }}
         run: |
           set -euo pipefail
-          latest="$(gh api repos/VictoriaMetrics/VictoriaMetrics/releases/latest --jq .tag_name)"
+          latest="$(gh api "repos/${REPO}/releases/latest" --jq .tag_name)"
           latest="${latest#v}"
-          current="$(sed -n 's/^  version "\(.*\)"$/\1/p' Formula/vmctl.rb)"
+          behind=""
+          suffix=""
+          for pair in $FORMULAS; do
+            formula="${pair%%:*}"
+            current="$(sed -n 's/^  version "\(.*\)"$/\1/p' "Formula/${formula}.rb")"
+            if [ "$(printf '%s\n' "$current" "$latest" | sort -V | tail -1)" != "$current" ]; then
+              behind="$behind $pair"
+              suffix="${suffix}-${formula}"
+            fi
+          done
+          branch="bump-${latest}${suffix}"
           bump=true
-          if [ "$(printf '%s\n' "$current" "$latest" | sort -V | tail -1)" = "$current" ]; then
-            echo "No release newer than $current (latest: $latest)."
+          verify_existing=false
+          if [ -z "$behind" ]; then
+            echo "All formulas are current for ${REPO} (latest: $latest)."
             bump=false
-          elif git ls-remote --exit-code origin "refs/heads/bump-vmctl-${latest}" >/dev/null 2>&1; then
-            echo "Bump branch for $latest already exists."
+          elif git ls-remote --exit-code origin "refs/heads/${branch}" >/dev/null 2>&1; then
+            echo "Bump branch ${branch} already exists; re-verifying its CI instead of re-pushing."
             bump=false
+            verify_existing=true
           fi
           {
             echo "latest=$latest"
             echo "bump=$bump"
+            echo "verify_existing=$verify_existing"
+            echo "branch=$branch"
+            echo "behind=${behind# }"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Update formula and changelog, open PR
+      - name: Update formulas and changelog, open PR
         if: steps.check.outputs.bump == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ matrix.repo }}
           VERSION: ${{ steps.check.outputs.latest }}
+          BEHIND: ${{ steps.check.outputs.behind }}
         run: |
           set -euo pipefail
-          for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
-            url="https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v${VERSION}/vmutils-${asset}-v${VERSION}.tar.gz"
-            curl --fail --location --silent --output "/tmp/${asset}.tar.gz" "$url"
-            shasum -a 256 "/tmp/${asset}.tar.gz" | cut -d' ' -f1 > "/tmp/${asset}.sha256"
+          names=""
+          for pair in $BEHIND; do
+            formula="${pair%%:*}"
+            rest="${pair#*:}"
+            prefix="${rest%%:*}"
+            docs="${rest#*:}"
+            file="Formula/${formula}.rb"
+            for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
+              url="https://github.com/${REPO}/releases/download/v${VERSION}/${prefix}-${asset}-v${VERSION}.tar.gz"
+              curl --fail --location --silent --output "/tmp/${asset}.tar.gz" "$url"
+              shasum -a 256 "/tmp/${asset}.tar.gz" | cut -d' ' -f1 > "/tmp/${asset}.sha256"
+            done
+            old_version="$(sed -n 's/^  version "\(.*\)"$/\1/p' "$file")"
+            sed -i "s/^  version \"${old_version}\"$/  version \"${VERSION}\"/" "$file"
+            for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
+              sha="$(cat "/tmp/${asset}.sha256")"
+              awk -v pat="${prefix}-${asset}-" -v sha="$sha" '
+                index($0, pat) { print; getline; sub(/"[0-9a-f]+"/, "\"" sha "\"") }
+                { print }
+              ' "$file" > "${file}.new"
+              mv "${file}.new" "$file"
+            done
+            grep -q "^  version \"${VERSION}\"$" "$file"
+            for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
+              grep -q "$(cat "/tmp/${asset}.sha256")" "$file"
+            done
+            # shellcheck disable=SC2016  # literal markdown backticks, versions injected via quoted expansions
+            sed -i 's/^| `'"${formula}"'` | '"${old_version}"' |/| `'"${formula}"'` | '"${VERSION}"' |/' README.md
+            # shellcheck disable=SC2016
+            grep -qF '| `'"${formula}"'` | '"${VERSION}"' |' README.md
+            changelog_line="* FEATURE: [${formula}](https://docs.victoriametrics.com/${docs}/): update to [v${VERSION}](https://github.com/${REPO}/releases/tag/v${VERSION})."
+            awk -v line="$changelog_line" '{ print } /^## tip$/ { getline; print; print line }' CHANGELOG.md > CHANGELOG.md.new
+            mv CHANGELOG.md.new CHANGELOG.md
+            names="${names:+$names, }${formula}"
           done
-          old_version="$(sed -n 's/^  version "\(.*\)"$/\1/p' Formula/vmctl.rb)"
-          sed -i "s/^  version \"${old_version}\"$/  version \"${VERSION}\"/" Formula/vmctl.rb
-          for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
-            sha="$(cat "/tmp/${asset}.sha256")"
-            awk -v asset="$asset" -v sha="$sha" '
-              index($0, "vmutils-" asset "-") { print; getline; sub(/"[0-9a-f]+"/, "\"" sha "\"") }
-              { print }
-            ' Formula/vmctl.rb > Formula/vmctl.rb.new
-            mv Formula/vmctl.rb.new Formula/vmctl.rb
-          done
-          grep -q "^  version \"${VERSION}\"$" Formula/vmctl.rb
-          for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
-            grep -q "$(cat "/tmp/${asset}.sha256")" Formula/vmctl.rb
-          done
-          # shellcheck disable=SC2016  # literal markdown backticks, versions injected via quoted expansions
-          sed -i 's/^| `vmctl` | '"${old_version}"' |/| `vmctl` | '"${VERSION}"' |/' README.md
-          # shellcheck disable=SC2016
-          grep -qF '| `vmctl` | '"${VERSION}"' |' README.md
-          changelog_line="* FEATURE: [vmctl](https://docs.victoriametrics.com/victoriametrics/vmctl/): update to [v${VERSION}](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v${VERSION})."
-          awk -v line="$changelog_line" '{ print } /^## tip$/ { getline; print; print line }' CHANGELOG.md > CHANGELOG.md.new
-          mv CHANGELOG.md.new CHANGELOG.md
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          branch="bump-vmctl-${VERSION}"
+          branch="${{ steps.check.outputs.branch }}"
           git checkout -b "$branch"
-          git commit -am "vmctl: update to ${VERSION}"
+          git commit -am "${names}: update to ${VERSION}"
           git push origin "$branch"
           gh pr create \
-            --title "vmctl: update to ${VERSION}" \
-            --body "Automated update to VictoriaMetrics v${VERSION}. Checksums computed from the release assets." \
+            --title "${names}: update to ${VERSION}" \
+            --body "Automated update to v${VERSION} from ${REPO}. Checksums computed from the release assets." \
             --base main --head "$branch"
 
       - name: Run CI on the bump branch and wait for it
-        if: steps.check.outputs.bump == 'true'
+        if: steps.check.outputs.bump == 'true' || steps.check.outputs.verify_existing == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.check.outputs.latest }}
         run: |
           set -euo pipefail
-          gh workflow run test.yml --ref "bump-vmctl-${VERSION}"
-          sleep 20
-          run_id="$(gh run list --workflow test.yml --branch "bump-vmctl-${VERSION}" --limit 1 --json databaseId --jq '.[0].databaseId')"
+          branch="${{ steps.check.outputs.branch }}"
+          dispatched_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          gh workflow run test.yml --ref "$branch"
+          run_id=""
+          for _ in $(seq 1 24); do
+            sleep 5
+            run_id="$(gh run list --workflow test.yml --branch "$branch" --event workflow_dispatch \
+              --created ">=${dispatched_at}" --limit 1 --json databaseId --jq '.[0].databaseId // empty')"
+            [ -n "$run_id" ] && break
+          done
+          if [ -z "$run_id" ]; then
+            echo "Dispatched test run never appeared for ${branch}." >&2
+            exit 1
+          fi
           gh run watch "$run_id" --exit-status

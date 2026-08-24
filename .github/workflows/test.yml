@@ -31,10 +31,16 @@ jobs:
           brew tap | grep -q '^victoriametrics/tap$' || brew tap victoriametrics/tap "$GITHUB_WORKSPACE"
 
       - name: Install
-        run: brew install victoriametrics/tap/vmctl
+        run: |
+          for f in Formula/*.rb; do
+            brew install "victoriametrics/tap/$(basename "$f" .rb)"
+          done
 
       - name: Test
-        run: brew test victoriametrics/tap/vmctl
+        run: |
+          for f in Formula/*.rb; do
+            brew test "victoriametrics/tap/$(basename "$f" .rb)"
+          done
 
       - name: Style
         run: brew style victoriametrics/tap
