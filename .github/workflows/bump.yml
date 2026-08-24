@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   bump:
@@ -20,17 +21,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           latest="$(gh api repos/VictoriaMetrics/VictoriaMetrics/releases/latest --jq .tag_name)"
           latest="${latest#v}"
           current="$(sed -n 's/^  version "\(.*\)"$/\1/p' Formula/vmctl.rb)"
-          echo "latest=$latest" >> "$GITHUB_OUTPUT"
-          echo "current=$current" >> "$GITHUB_OUTPUT"
-          if [ "$latest" = "$current" ]; then
-            echo "Formula is up to date ($current)."
+          bump=true
+          if [ "$(printf '%s\n' "$current" "$latest" | sort -V | tail -1)" = "$current" ]; then
+            echo "No release newer than $current (latest: $latest)."
+            bump=false
+          elif git ls-remote --exit-code origin "refs/heads/bump-vmctl-${latest}" >/dev/null 2>&1; then
+            echo "Bump branch for $latest already exists."
+            bump=false
           fi
+          {
+            echo "latest=$latest"
+            echo "bump=$bump"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Update formula
-        if: steps.check.outputs.latest != steps.check.outputs.current
+      - name: Update formula and changelog, open PR
+        if: steps.check.outputs.bump == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.check.outputs.latest }}
@@ -46,10 +55,14 @@ jobs:
           for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
             sha="$(cat "/tmp/${asset}.sha256")"
             awk -v asset="$asset" -v sha="$sha" '
-              index($0, "vmutils-" asset "-") { print; getline; sub(/"[0-9a-f]{64}"/, "\"" sha "\"") }
+              index($0, "vmutils-" asset "-") { print; getline; sub(/"[0-9a-f]+"/, "\"" sha "\"") }
               { print }
             ' Formula/vmctl.rb > Formula/vmctl.rb.new
             mv Formula/vmctl.rb.new Formula/vmctl.rb
+          done
+          grep -q "^  version \"${VERSION}\"$" Formula/vmctl.rb
+          for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
+            grep -q "$(cat "/tmp/${asset}.sha256")" Formula/vmctl.rb
           done
           changelog_line="* FEATURE: [vmctl](https://docs.victoriametrics.com/victoriametrics/vmctl/): update to [v${VERSION}](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v${VERSION})."
           awk -v line="$changelog_line" '{ print } /^## tip$/ { getline; print; print line }' CHANGELOG.md > CHANGELOG.md.new
@@ -65,8 +78,14 @@ jobs:
             --body "Automated update to VictoriaMetrics v${VERSION}. Checksums computed from the release assets." \
             --base main --head "$branch"
 
-      - name: Run CI on the bump branch
-        if: steps.check.outputs.latest != steps.check.outputs.current
+      - name: Run CI on the bump branch and wait for it
+        if: steps.check.outputs.bump == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run test.yml --ref "bump-vmctl-${{ steps.check.outputs.latest }}"
+          VERSION: ${{ steps.check.outputs.latest }}
+        run: |
+          set -euo pipefail
+          gh workflow run test.yml --ref "bump-vmctl-${VERSION}"
+          sleep 20
+          run_id="$(gh run list --workflow test.yml --branch "bump-vmctl-${VERSION}" --limit 1 --json databaseId --jq '.[0].databaseId')"
+          gh run watch "$run_id" --exit-status
