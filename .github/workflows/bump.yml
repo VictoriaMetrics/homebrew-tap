@@ -104,10 +104,10 @@ jobs:
             for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
               grep -q "$(cat "/tmp/${asset}.sha256")" "$file"
             done
-            # shellcheck disable=SC2016  # literal markdown backticks, versions injected via quoted expansions
-            sed -i 's/^| `'"${formula}"'` | '"${old_version}"' |/| `'"${formula}"'` | '"${VERSION}"' |/' README.md
+            # shellcheck disable=SC2016  # literal markdown backticks; the middle cell is the optional alias column
+            sed -i 's/^\(| `'"${formula}"'` |[^|]*| \)'"${old_version}"' |/\1'"${VERSION}"' |/' README.md
             # shellcheck disable=SC2016
-            grep -qF '| `'"${formula}"'` | '"${VERSION}"' |' README.md
+            grep -qE '^\| `'"${formula}"'` \|[^|]*\| '"${VERSION}"' \|' README.md
             changelog_line="* FEATURE: [${formula}](https://docs.victoriametrics.com/${docs}/): update to [v${VERSION}](https://github.com/${REPO}/releases/tag/v${VERSION})."
             awk -v line="$changelog_line" '{ print } /^## tip$/ { getline; print; print line }' CHANGELOG.md > CHANGELOG.md.new
             mv CHANGELOG.md.new CHANGELOG.md
