@@ -5,6 +5,9 @@ Homebrew formulae for VictoriaMetrics tools, built from the official release bin
 > [!WARNING]
 > This tap is a work in progress. Formula names and contents may still change while we finish moving Homebrew distribution here.
 
+> [!NOTE]
+> These packages are intended for development and testing. For production or enterprise deployments at scale, see the [VictoriaMetrics documentation](https://docs.victoriametrics.com/) or reach out on the [public Slack](https://slack.victoriametrics.com/).
+
 ## Install
 Update `brew` first:
 ```sh
