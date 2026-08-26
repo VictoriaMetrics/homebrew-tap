@@ -15,16 +15,19 @@ brew tap victoriametrics/tap
 brew trust victoriametrics/tap
 ```
 
-Then install the desired package (`vmctl` in this example)
+Then install the desired package (`vmctl` in this example):
 
+```sh
+brew install vmctl
+```
 
-Alternatively, you can use the full name taps and trusts this repository in one step.
+Alternatively, install by the full name, which taps and trusts this repository in one step:
 
 ```sh
 brew install victoriametrics/tap/vmctl
 ```
 
-## Available Formulaes
+## Available Formulae
 
 | Formula | Version | Description |
 |---------|---------|-------------|
