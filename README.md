@@ -38,10 +38,10 @@ brew install victoriametrics/tap/vmctl
 | Formula | Alias | Version | Description |
 |---------|-------|---------|-------------|
 | `vmctl` | | 1.150.0 | Command-line tool for migrating and verifying VictoriaMetrics data. [Docs](https://docs.victoriametrics.com/victoriametrics/vmctl/) |
-| `victoriametrics` | `vmet` | 1.150.0 | Single-node VictoriaMetrics time series database. [Docs](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/) |
-| `victorialogs` | `vlog` | 1.52.0 | VictoriaLogs database for logs. [Docs](https://docs.victoriametrics.com/victorialogs/) |
+| `victoriametrics` | `vmet`, `victoria-metrics` | 1.150.0 | Single-node VictoriaMetrics time series database. [Docs](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/) |
+| `victorialogs` | `vlog`, `victoria-logs` | 1.52.0 | VictoriaLogs database for logs. [Docs](https://docs.victoriametrics.com/victorialogs/) |
 
-The `victoriametrics` and `victorialogs` names also exist in homebrew-core. To be sure you get this tap's version, install through the alias (`brew install vmet`, `brew install vlog` once the tap is trusted) or use the full name.
+The `victoriametrics` and `victorialogs` names also exist in homebrew-core. To be sure you get this tap's version, install through an alias (e.g. `brew install vmet` or `brew install victoria-metrics` once the tap is trusted) or use the full name.
 
 Binaries are installed under their plain names (`vmctl`, `victoria-metrics`, `victoria-logs`). In the release tarballs the same binaries carry a `-prod` suffix.
 
