@@ -37,11 +37,11 @@ brew install victoriametrics/tap/vmctl
 
 | Formula | Alias | Version | Description |
 |---------|-------|---------|-------------|
-| `vmctl` | | 1.150.0 | Command-line tool for migrating and verifying VictoriaMetrics data. [Docs](https://docs.victoriametrics.com/victoriametrics/vmctl/) |
+| `vmctl` | | 1.152.0 | Command-line tool for migrating and verifying VictoriaMetrics data. [Docs](https://docs.victoriametrics.com/victoriametrics/vmctl/) |
 | `vmagent` | | 1.150.0 | Agent for collecting metrics and forwarding them to VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmagent/) |
 | `vmalert` | | 1.150.0 | Executes alerting and recording rules against VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmalert/) |
 | `vmauth` | | 1.150.0 | HTTP proxy, auth gateway and load balancer for VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmauth/) |
-| `victoriametrics` | `vmet`, `victoria-metrics` | 1.150.0 | Single-node VictoriaMetrics time series database. [Docs](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/) |
+| `victoriametrics` | `vmet`, `victoria-metrics` | 1.152.0 | Single-node VictoriaMetrics time series database. [Docs](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/) |
 | `victorialogs` | `vlog`, `victoria-logs` | 1.52.0 | VictoriaLogs database for logs. [Docs](https://docs.victoriametrics.com/victorialogs/) |
 | `victoriatraces` | `vtrace`, `victoria-traces` | 0.11.1 | VictoriaTraces database for distributed traces. [Docs](https://docs.victoriametrics.com/victoriatraces/) |
 
