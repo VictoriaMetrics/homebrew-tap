@@ -37,13 +37,17 @@ brew install victoriametrics/tap/vmctl
 
 | Formula | Alias | Version | Description |
 |---------|-------|---------|-------------|
-| `vmctl` | | 1.152.0 | Command-line tool for migrating and verifying VictoriaMetrics data. [Docs](https://docs.victoriametrics.com/victoriametrics/vmctl/) |
-| `victoriametrics` | `vmet`, `victoria-metrics` | 1.152.0 | Single-node VictoriaMetrics time series database. [Docs](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/) |
+| `vmctl` | | 1.150.0 | Command-line tool for migrating and verifying VictoriaMetrics data. [Docs](https://docs.victoriametrics.com/victoriametrics/vmctl/) |
+| `vmagent` | | 1.150.0 | Agent for collecting metrics and forwarding them to VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmagent/) |
+| `vmalert` | | 1.150.0 | Executes alerting and recording rules against VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmalert/) |
+| `vmauth` | | 1.150.0 | HTTP proxy, auth gateway and load balancer for VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmauth/) |
+| `victoriametrics` | `vmet`, `victoria-metrics` | 1.150.0 | Single-node VictoriaMetrics time series database. [Docs](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/) |
 | `victorialogs` | `vlog`, `victoria-logs` | 1.52.0 | VictoriaLogs database for logs. [Docs](https://docs.victoriametrics.com/victorialogs/) |
+| `victoriatraces` | `vtrace`, `victoria-traces` | 0.11.1 | VictoriaTraces database for distributed traces. [Docs](https://docs.victoriametrics.com/victoriatraces/) |
 
 The `victoriametrics` and `victorialogs` names also exist in homebrew-core. To be sure you get this tap's version, install through an alias (e.g. `brew install vmet` or `brew install victoria-metrics` once the tap is trusted) or use the full name.
 
-Binaries are installed under their plain names (`vmctl`, `victoria-metrics`, `victoria-logs`). In the release tarballs the same binaries carry a `-prod` suffix.
+Binaries are installed under their plain names (`vmctl`, `vmagent`, `vmalert`, `vmauth`, `victoria-metrics`, `victoria-logs`, `victoria-traces`). In the release tarballs the same binaries carry a `-prod` suffix.
 
 `victoriametrics` and `victorialogs` also exist in homebrew-core. The same formula name cannot be installed from both sources on one machine; run `brew uninstall victoriametrics` (or `victorialogs`) before installing the tap version.
 
