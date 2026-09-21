@@ -2,6 +2,9 @@
 
 ## tip
 
+* FEATURE: [vmauth](https://docs.victoriametrics.com/victoriametrics/vmauth/): update to [v1.152.0](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.152.0).
+* FEATURE: [vmalert](https://docs.victoriametrics.com/victoriametrics/vmalert/): update to [v1.152.0](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.152.0).
+* FEATURE: [vmagent](https://docs.victoriametrics.com/victoriametrics/vmagent/): update to [v1.152.0](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.152.0).
 * FEATURE: [victoriatraces](https://docs.victoriametrics.com/victoriatraces/): add `victoriatraces` formula. It installs the official prebuilt `victoria-traces` release binary with a launchd/systemd service definition.
 * FEATURE: [vmauth](https://docs.victoriametrics.com/victoriametrics/vmauth/): add `vmauth` formula. It installs the official prebuilt `vmauth` release binary with a launchd/systemd service definition.
 * FEATURE: [vmalert](https://docs.victoriametrics.com/victoriametrics/vmalert/): add `vmalert` formula. It installs the official prebuilt `vmalert` release binary with a launchd/systemd service definition.
