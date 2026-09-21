@@ -22,10 +22,13 @@ jobs:
         include:
           - group: victoriametrics
             repo: VictoriaMetrics/VictoriaMetrics
-            formulas: "vmctl:vmutils:victoriametrics/vmctl victoriametrics:victoria-metrics:victoriametrics/single-server-victoriametrics"
+            formulas: "vmctl:vmutils:victoriametrics/vmctl vmagent:vmutils:victoriametrics/vmagent vmalert:vmutils:victoriametrics/vmalert vmauth:vmutils:victoriametrics/vmauth victoriametrics:victoria-metrics:victoriametrics/single-server-victoriametrics"
           - group: victorialogs
             repo: VictoriaMetrics/VictoriaLogs
             formulas: "victorialogs:victoria-logs:victorialogs"
+          - group: victoriatraces
+            repo: VictoriaMetrics/VictoriaTraces
+            formulas: "victoriatraces:victoria-traces:victoriatraces"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
