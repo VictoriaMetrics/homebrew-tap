@@ -1,28 +1,28 @@
 class Vmctl < Formula
   desc "Command-line tool for migrating and verifying VictoriaMetrics data"
   homepage "https://docs.victoriametrics.com/victoriametrics/vmctl/"
-  version "1.152.0"
+  version "1.153.0"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-darwin-arm64-v#{version}.tar.gz"
-      sha256 "22192226f8f6dd7e4950630c74fa4e32a4f08e1f220913f76b14db899977f2a1"
+      sha256 "f6fb958d30666da21bcd190b908cc6714d1f2cb0e1938a6338ece0d45cb9f049"
     end
     on_intel do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-darwin-amd64-v#{version}.tar.gz"
-      sha256 "8f7f98934c4ca27a48168217e6e28a16e74a69c9d7bbd9aed96ebd275a26051e"
+      sha256 "265e866cb20d489d8d9d2eaa914b9a19270c4f0f50a180eeb98f38c5676d8560"
     end
   end
 
   on_linux do
     on_arm do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-linux-arm64-v#{version}.tar.gz"
-      sha256 "57c567b262962a4cb8e35c0c34efe64629a3e1ea69ac0611d8d67e168df8b1e8"
+      sha256 "8153c4feb73564215950a299c803d5c1e974772cd34b8c162d43ea2c5b516df5"
     end
     on_intel do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-linux-amd64-v#{version}.tar.gz"
-      sha256 "8eee4a98ff1665c60682475e8a8b292b8d718b63a2f023124384dd2f6a220c79"
+      sha256 "85aea24a4829cf26033d810aceb7888070bd4eaff321357168ff6db24bf7c00c"
     end
   end
 

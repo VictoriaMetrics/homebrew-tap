@@ -1,28 +1,28 @@
 class Victoriametrics < Formula
   desc "Cost-effective and scalable monitoring solution and time series database"
   homepage "https://victoriametrics.com/"
-  version "1.152.0"
+  version "1.153.0"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/victoria-metrics-darwin-arm64-v#{version}.tar.gz"
-      sha256 "2867ec3ce6f190be6c391a77d116a0bcde6a06a304799b3d248dbf97bac1f5fd"
+      sha256 "e2092b103d3f874d8d52fecb42ee35c0d73a3b27ee6cc5b73892d3b18e8e26ce"
     end
     on_intel do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/victoria-metrics-darwin-amd64-v#{version}.tar.gz"
-      sha256 "84ea6ca39c4d8d840251b1f798f3803ca937e75dea91636ad39384c5614cb053"
+      sha256 "d75fea2853e22839fe86bc8e0ff6d1073c8d04ab4ce2a39c9cd401586467c8f9"
     end
   end
 
   on_linux do
     on_arm do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/victoria-metrics-linux-arm64-v#{version}.tar.gz"
-      sha256 "2d09ef656cce7f6b5b7252ff2eb7e5325ee996100fcd562a18eb89693c6344ef"
+      sha256 "3d5f965b7a75f713742a7f37195c1d845f47d9dc9d096a2cce29e693f08fd641"
     end
     on_intel do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/victoria-metrics-linux-amd64-v#{version}.tar.gz"
-      sha256 "1be2fc4bbdbfa56ba0480e6b0aff736f0c17e5e5b8b888587b69c3a21b42114a"
+      sha256 "1b495bde563825cf83dc7c0425a9d8fa03e7214858e0949f9177efc6bb1f8bfc"
     end
   end
 
