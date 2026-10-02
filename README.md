@@ -42,7 +42,7 @@ brew install victoriametrics/tap/vmctl
 | `vmalert` | | 1.152.0 | Executes alerting and recording rules against VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmalert/) |
 | `vmauth` | | 1.152.0 | HTTP proxy, auth gateway and load balancer for VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmauth/) |
 | `victoriametrics` | `vmet`, `victoria-metrics` | 1.152.0 | Single-node VictoriaMetrics time series database. [Docs](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/) |
-| `victorialogs` | `vlog`, `victoria-logs` | 1.52.0 | VictoriaLogs database for logs. [Docs](https://docs.victoriametrics.com/victorialogs/) |
+| `victorialogs` | `vlog`, `victoria-logs` | 1.53.0 | VictoriaLogs database for logs. [Docs](https://docs.victoriametrics.com/victorialogs/) |
 | `victoriatraces` | `vtrace`, `victoria-traces` | 0.11.1 | VictoriaTraces database for distributed traces. [Docs](https://docs.victoriametrics.com/victoriatraces/) |
 
 The `victoriametrics` and `victorialogs` names also exist in homebrew-core. To be sure you get this tap's version, install through an alias (e.g. `brew install vmet` or `brew install victoria-metrics` once the tap is trusted) or use the full name.
