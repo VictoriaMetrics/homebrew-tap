@@ -1,28 +1,28 @@
 class Vmalert < Formula
   desc "Executes alerting and recording rules against VictoriaMetrics"
   homepage "https://docs.victoriametrics.com/victoriametrics/vmalert/"
-  version "1.152.0"
+  version "1.154.0"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-darwin-arm64-v#{version}.tar.gz"
-      sha256 "22192226f8f6dd7e4950630c74fa4e32a4f08e1f220913f76b14db899977f2a1"
+      sha256 "0ab572cd67c2e66b2a54ceb7e97defab6c9e0c933963ca0581f9a5edaeb240ef"
     end
     on_intel do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-darwin-amd64-v#{version}.tar.gz"
-      sha256 "8f7f98934c4ca27a48168217e6e28a16e74a69c9d7bbd9aed96ebd275a26051e"
+      sha256 "5ced47b84bc487b965c53ec6f1e435eabe16ca67078c19a1b9761077a54125dd"
     end
   end
 
   on_linux do
     on_arm do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-linux-arm64-v#{version}.tar.gz"
-      sha256 "57c567b262962a4cb8e35c0c34efe64629a3e1ea69ac0611d8d67e168df8b1e8"
+      sha256 "6117b45ac2f65728c87bf2a12ec6c68997cf81dc2ecc97bc87a31f3925543d67"
     end
     on_intel do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-linux-amd64-v#{version}.tar.gz"
-      sha256 "8eee4a98ff1665c60682475e8a8b292b8d718b63a2f023124384dd2f6a220c79"
+      sha256 "0c6b01fba8ca3149a017ad7713ae65cd2222ba6a64f1e1f8787692cbb5d953c9"
     end
   end
 
