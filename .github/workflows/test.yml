@@ -5,6 +5,12 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      scope:
+        description: Which formulae to test
+        type: choice
+        options: [changed, all]
+        default: changed
 
 permissions:
   contents: read
@@ -18,6 +24,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Script tests
+        if: matrix.os == 'ubuntu-latest'
+        run: bash tests/versioned/run.sh
 
       - name: Set up Homebrew
         if: runner.os == 'Linux'
@@ -30,17 +42,49 @@ jobs:
         run: |
           brew tap | grep -q '^victoriametrics/tap$' || brew tap victoriametrics/tap "$GITHUB_WORKSPACE"
 
-      - name: Install
+      - name: Select formulae
+        id: select
+        env:
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref_name }}
+          SCOPE: ${{ inputs.scope || 'changed' }}
         run: |
-          for f in Formula/*.rb; do
-            brew install "victoriametrics/tap/$(basename "$f" .rb)"
+          list="$(scripts/ci-select-formulae.sh "$EVENT" "$REF" "$SCOPE" | tr '\n' ' ')"
+          echo "Selected: $list"
+          echo "list=$list" >> "$GITHUB_OUTPUT"
+
+      - name: Install
+        env:
+          FORMULAE: ${{ steps.select.outputs.list }}
+        run: |
+          for f in $FORMULAE; do
+            brew install "victoriametrics/tap/$f"
           done
 
       - name: Test
+        env:
+          FORMULAE: ${{ steps.select.outputs.list }}
         run: |
-          for f in Formula/*.rb; do
-            brew test "victoriametrics/tap/$(basename "$f" .rb)"
+          for f in $FORMULAE; do
+            brew test "victoriametrics/tap/$f"
           done
+
+      - name: Plain formulae win on PATH
+        # versioned formulae are keg-only, so the plain binary must stay the one on PATH
+        run: |
+          status=0
+          for pair in vmctl:vmctl vmagent:vmagent vmalert:vmalert vmauth:vmauth \
+            victoriametrics:victoria-metrics victorialogs:victoria-logs victoriatraces:victoria-traces; do
+            formula="${pair%%:*}"
+            bin="${pair##*:}"
+            want="$(sed -n 's/^  version "\(.*\)"$/\1/p' "Formula/$formula.rb")"
+            got="$("$(brew --prefix)/bin/$bin" --version 2>&1 || true)"
+            case "$got" in
+              *"$want"*) echo "ok   $bin $want" ;;
+              *) echo "FAIL $bin: want $want, got: $got" >&2; status=1 ;;
+            esac
+          done
+          exit "$status"
 
       - name: Style
         run: brew style victoriametrics/tap
