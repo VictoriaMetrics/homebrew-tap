@@ -49,7 +49,9 @@ jobs:
           REF: ${{ github.ref_name }}
           SCOPE: ${{ inputs.scope || 'changed' }}
         run: |
-          list="$(scripts/ci-select-formulae.sh "$EVENT" "$REF" "$SCOPE" | tr '\n' ' ')"
+          # capture first so a selector failure fails the step (no pipefail by default)
+          selected="$(scripts/ci-select-formulae.sh "$EVENT" "$REF" "$SCOPE")"
+          list="$(echo "$selected" | tr '\n' ' ')"
           echo "Selected: $list"
           echo "list=$list" >> "$GITHUB_OUTPUT"
 
