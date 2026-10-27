@@ -30,9 +30,10 @@ Reference for anyone (or any tool) changing this tap.
   `scripts/versioned-generate.sh ... --regenerate`, or, for a fix limited to one release, add a
   sed script at `versioned/overrides/<name>@<X.Y.Z>.sed`, which is applied after rendering.
 - Tests live in `tests/versioned/`; run `bash tests/versioned/run.sh`.
-- Which versions exist is decided by two checked-in lists: an include list (releases older
-  than the 2025-08-01 cutoff that still qualify) and an exclude list (`<formula>@<X.Y.Z>`
-  entries, each with a one-line reason, for releases that cannot pass CI). The generator and
+- Which versions exist is decided by two checked-in lists: `versioned/include.txt` (format
+  `<owner/repo> v<X.Y.Z>`; releases older than the 2025-08-01 cutoff that still qualify) and
+  `versioned/exclude.txt` (format `<formula>@<X.Y.Z> <reason>`, one line each, for releases
+  that cannot pass CI). `scripts/versioned-missing.sh` applies both. The generator and
   the bump job skip excluded entries, so a deleted file is never re-added. See
   `docs/superpowers/specs/2026-10-26-versioned-formulae-design.md`.
 

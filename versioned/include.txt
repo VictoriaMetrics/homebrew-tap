@@ -1,0 +1,2 @@
+VictoriaMetrics/VictoriaMetrics v1.110.0
+VictoriaMetrics/VictoriaMetrics v1.122.0
