@@ -1,28 +1,28 @@
 class Vmauth < Formula
   desc "HTTP proxy, auth gateway and load balancer for VictoriaMetrics"
   homepage "https://docs.victoriametrics.com/victoriametrics/vmauth/"
-  version "1.154.0"
+  version "1.155.0"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-darwin-arm64-v#{version}.tar.gz"
-      sha256 "0ab572cd67c2e66b2a54ceb7e97defab6c9e0c933963ca0581f9a5edaeb240ef"
+      sha256 "30c316c0bfb840962a8b878a451acf6dcdae50294543b3a829d54ca0bb6674e1"
     end
     on_intel do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-darwin-amd64-v#{version}.tar.gz"
-      sha256 "5ced47b84bc487b965c53ec6f1e435eabe16ca67078c19a1b9761077a54125dd"
+      sha256 "4adf38ac44c3fb1b7ed4773f5930f7f4a8e5b6553147a4ae87e56f2925e060af"
     end
   end
 
   on_linux do
     on_arm do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-linux-arm64-v#{version}.tar.gz"
-      sha256 "6117b45ac2f65728c87bf2a12ec6c68997cf81dc2ecc97bc87a31f3925543d67"
+      sha256 "45fa04b8d616dd644c33c00698f22bbe67f9402bc474a1e6df8025f7e649d78f"
     end
     on_intel do
       url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-linux-amd64-v#{version}.tar.gz"
-      sha256 "0c6b01fba8ca3149a017ad7713ae65cd2222ba6a64f1e1f8787692cbb5d953c9"
+      sha256 "b6181fc16cf19835706ea5d67215eea56c1fe87350fdfd82a5ff803ea2c1a907"
     end
   end
 
