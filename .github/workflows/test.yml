@@ -80,6 +80,11 @@ jobs:
             formula="${pair%%:*}"
             bin="${pair##*:}"
             want="$(sed -n 's/^  version "\(.*\)"$/\1/p' "Formula/$formula.rb")"
+            if [ -z "$want" ]; then
+              echo "FAIL $bin: no version line found in Formula/$formula.rb" >&2
+              status=1
+              continue
+            fi
             got="$("$(brew --prefix)/bin/$bin" --version 2>&1 || true)"
             case "$got" in
               *"$want"*) echo "ok   $bin $want" ;;
