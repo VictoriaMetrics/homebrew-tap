@@ -6,7 +6,7 @@ fail() {
 }
 
 assert_eq() {
-  [ "$1" = "$2" ] || fail "$3: expected '$1', got '$2'"
+  [[ "$1" = "$2" ]] || fail "$3: expected '$1', got '$2'"
 }
 
 assert_contains() {
@@ -14,5 +14,5 @@ assert_contains() {
 }
 
 assert_absent() {
-  [ ! -e "$1" ] || fail "$1 should not exist"
+  [[ ! -e "$1" ]] || fail "$1 should not exist"
 }

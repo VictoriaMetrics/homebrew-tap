@@ -25,40 +25,51 @@ usage() {
 }
 
 repo="" pairs="" exclude_version=""
-while [ $# -gt 0 ]; do
+while [[ $# -gt 0 ]]
+do
   case "$1" in
-    --repo) repo=${2:?}; shift 2 ;;
-    --pairs) pairs=${2:?}; shift 2 ;;
-    --exclude-version) exclude_version=${2:?}; shift 2 ;;
+    --repo)
+      repo=${2:?}
+      shift 2
+      ;;
+    --pairs)
+      pairs=${2:?}
+      shift 2
+      ;;
+    --exclude-version)
+      exclude_version=${2:?}
+      shift 2
+      ;;
     *) usage ;;
   esac
 done
-[ -n "$repo" ] && [ -n "$pairs" ] || usage
+[[ -n "${repo}" ]] && [[ -n "${pairs}" ]] || usage
 
 root=${VERSIONED_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}
 anchor=${VERSIONED_ANCHOR:-2025-08-01}
 
 # Data lines of a list file: comments and blank lines dropped.
 data_lines() {
-  [ -f "$1" ] || return 0
+  [[ -f "$1" ]] || return 0
   grep -vE '^[[:space:]]*(#|$)' "$1" || true
 }
 
 # Tags on the include list for this repo, as a JSON array.
-include_tags=$(data_lines "$root/versioned/include.txt" |
-  awk -v r="$repo" '$1 == r { print $2 }' | jq -R . | jq -s .)
+include_tags=$(data_lines "${root}/versioned/include.txt" |
+  awk -v r="${repo}" '$1 == r { print $2 }' | jq -R . | jq -s .)
 
 # Distinct asset prefixes, as a JSON array.
-prefixes=$(for p in $pairs; do echo "${p#*:}"; done | sort -u | jq -R . | jq -s .)
+prefixes=$(for p in ${pairs}; do echo "${p#*:}"; done | sort -u | jq -R . | jq -s .)
 
-if [ -n "${VERSIONED_RELEASES_FILE:-}" ]; then
-  releases=$(jq -s 'add // []' "$VERSIONED_RELEASES_FILE")
+if [[ -n "${VERSIONED_RELEASES_FILE:-}" ]]
+then
+  releases=$(jq -s 'add // []' "${VERSIONED_RELEASES_FILE}")
 else
-  releases=$(gh api --paginate "repos/$repo/releases" | jq -s 'add // []')
+  releases=$(gh api --paginate "repos/${repo}/releases?per_page=100" | jq -s 'add // []')
 fi
 
-versions=$(printf '%s' "$releases" | jq -r \
-  --arg anchor "$anchor" --argjson include "$include_tags" --argjson prefixes "$prefixes" '
+versions=$(printf '%s' "${releases}" | jq -r \
+  --arg anchor "${anchor}" --argjson include "${include_tags}" --argjson prefixes "${prefixes}" '
   [ "darwin-arm64", "darwin-amd64", "linux-arm64", "linux-amd64" ] as $platforms
   | .[]
   | select(.draft == false and .prerelease == false)
@@ -73,14 +84,16 @@ versions=$(printf '%s' "$releases" | jq -r \
            | all)
   | .tag_name[1:]' | sort -V -u)
 
-excluded=$(data_lines "$root/versioned/exclude.txt" | awk '{ print $1 }')
+excluded=$(data_lines "${root}/versioned/exclude.txt" | awk '{ print $1 }')
 
-for v in $versions; do
-  [ "$v" = "$exclude_version" ] && continue
-  for pair in $pairs; do
+for v in ${versions}
+do
+  [[ "${v}" = "${exclude_version}" ]] && continue
+  for pair in ${pairs}
+  do
     f=${pair%%:*}
-    [ -e "$root/Formula/$f@$v.rb" ] && continue
-    printf '%s\n' "$excluded" | grep -qxF -- "$f@$v" && continue
-    printf '%s %s\n' "$f" "$v"
+    [[ -e "${root}/Formula/${f}@${v}.rb" ]] && continue
+    printf '%s\n' "${excluded}" | grep -qxF -- "${f}@${v}" && continue
+    printf '%s %s\n' "${f}" "${v}"
   done
 done

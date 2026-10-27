@@ -26,7 +26,7 @@ Reference for anyone (or any tool) changing this tap.
 - Per-version state lives under the full name: `etc/"<name>@<X.Y.Z>"`,
   `var/"<name>@<X.Y.Z>-data"` and `var/"log/<name>@<X.Y.Z>.log"`. Only one version of a
   daemon can run as a service on its default port at a time; the caveats say so.
-- Never hand-edit a versioned file. Change `versioned/templates/<formula>.rb` and rerun
+- Never hand-edit a versioned file. Change `versioned/templates/<formula>.rb.tmpl` and rerun
   `scripts/versioned-generate.sh ... --regenerate`, or, for a fix limited to one release, add a
   sed script at `versioned/overrides/<name>@<X.Y.Z>.sed`, which is applied after rendering.
 - Tests live in `tests/versioned/`; run `bash tests/versioned/run.sh`.
@@ -35,7 +35,7 @@ Reference for anyone (or any tool) changing this tap.
   `versioned/exclude.txt` (format `<formula>@<X.Y.Z> <reason>`, one line each, for releases
   that cannot pass CI). `scripts/versioned-missing.sh` applies both. The generator and
   the bump job skip excluded entries, so a deleted file is never re-added. See
-  `docs/superpowers/specs/2026-10-26-versioned-formulae-design.md`.
+  `docs/versioned-formulae-design.md`.
 
 ## Adding a formula
 
