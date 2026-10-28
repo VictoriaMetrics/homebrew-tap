@@ -3,7 +3,8 @@ class VictorialogsAT1480 < Formula
   homepage "https://docs.victoriametrics.com/victorialogs/"
   version "1.48.0"
   license "Apache-2.0"
-  keg_only :versioned_formula
+  # a custom reason: Homebrew auto-links :versioned_formula kegs when the plain formula is absent
+  keg_only "it is an older release of victorialogs"
 
   on_macos do
     on_arm do

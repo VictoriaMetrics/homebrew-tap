@@ -46,7 +46,8 @@ test_renders_vmctl() {
   assert_eq "${f}" "${out}" "printed path"
   assert_contains "${f}" 'class VmctlAT11520 < Formula'
   assert_contains "${f}" 'version "1.152.0"'
-  assert_contains "${f}" 'keg_only :versioned_formula'
+  assert_contains "${f}" 'keg_only "it is an older release of vmctl"'
+  ! grep -q ':versioned_formula$' "${f}" || fail "keg_only must not use :versioned_formula"
   local shas=(
     22192226f8f6dd7e4950630c74fa4e32a4f08e1f220913f76b14db899977f2a1
     8f7f98934c4ca27a48168217e6e28a16e74a69c9d7bbd9aed96ebd275a26051e

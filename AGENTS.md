@@ -21,8 +21,9 @@ Reference for anyone (or any tool) changing this tap.
 ### Versioned formulae
 
 - `Formula/<name>@<X.Y.Z>.rb` installs an older upstream release (for example `vmctl@1.152.0`).
-  They are `keg_only :versioned_formula`, so they never link into the prefix and coexist
-  with the current formula and each other.
+  They are `keg_only "it is an older release of <name>"`, so they never link into the prefix
+  and coexist with the current formula and each other. The reason is custom on purpose:
+  Homebrew auto-links `:versioned_formula` kegs when the plain formula is absent.
 - Per-version state lives under the full name: `etc/"<name>@<X.Y.Z>"`,
   `var/"<name>@<X.Y.Z>-data"` and `var/"log/<name>@<X.Y.Z>.log"`. Only one version of a
   daemon can run as a service on its default port at a time; the caveats say so.
