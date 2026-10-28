@@ -81,6 +81,15 @@ test_missing_checksum_writes_nothing() {
   assert_absent "${root}/Formula/vmctl@9.9.9.rb"
 }
 
+test_prefix_mismatch_rejected() {
+  new_root
+  local rc=0
+  generate vmctl victoria-metrics 1.152.0 >/dev/null 2>&1 || rc=$?
+  assert_eq 1 "${rc}" "exit code"
+  assert_absent "${root}/Formula/vmctl@1.152.0.rb"
+  assert_absent "${root}/Formula/victoriametrics@1.152.0.rb"
+}
+
 test_skip_existing() {
   new_root
   local f="${root}/Formula/vmctl@1.152.0.rb" before after err rc=0
@@ -120,6 +129,7 @@ tests=(
   test_renders_vmctl
   test_paths_are_per_version
   test_missing_checksum_writes_nothing
+  test_prefix_mismatch_rejected
   test_skip_existing
   test_excluded_skipped
   test_override_applied

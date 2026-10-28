@@ -55,21 +55,60 @@ jobs:
           echo "Selected: $list"
           echo "list=$list" >> "$GITHUB_OUTPUT"
 
-      - name: Install
+      - name: Install and test
+        # Versioned tarballs are large (vmutils is ~143 MB, ~150 versions), so each one is
+        # installed, tested, then its download and keg are removed before the next. The lowest
+        # version of each tool stays installed so the PATH check runs next to a keg-only keg.
         env:
           FORMULAE: ${{ steps.select.outputs.list }}
         run: |
+          plain=""
+          versioned=""
           for f in $FORMULAE; do
-            brew install "victoriametrics/tap/$f"
+            case "$f" in
+              *@*) versioned="$versioned $f" ;;
+              *) plain="$plain $f" ;;
+            esac
           done
 
-      - name: Test
-        env:
-          FORMULAE: ${{ steps.select.outputs.list }}
-        run: |
-          for f in $FORMULAE; do
-            brew test "victoriametrics/tap/$f"
+          status=0
+          failures=""
+
+          for f in $plain; do
+            brew install "victoriametrics/tap/$f" || { failures="$failures\n$f: install"; status=1; continue; }
+            brew test "victoriametrics/tap/$f" || { failures="$failures\n$f: test"; status=1; }
           done
+
+          # lowest version per tool stays installed
+          keep=""
+          for name in $(for f in $versioned; do echo "${f%@*}"; done | sort -u); do
+            lowest="$(for f in $versioned; do
+              [ "${f%@*}" = "$name" ] && echo "${f#*@}"
+            done | sort -V | head -n 1)"
+            keep="$keep $name@$lowest"
+          done
+
+          for f in $versioned; do
+            echo "::group::$f"
+            if brew install "victoriametrics/tap/$f"; then
+              brew test "victoriametrics/tap/$f" || { failures="$failures\n$f: test"; status=1; }
+            else
+              failures="$failures\n$f: install"
+              status=1
+            fi
+            rm -f "$(brew --cache "victoriametrics/tap/$f")"
+            case " $keep " in
+              *" $f "*) ;;
+              *) brew uninstall --force "victoriametrics/tap/$f" || true ;;
+            esac
+            echo "::endgroup::"
+          done
+
+          if [ "$status" -ne 0 ]; then
+            echo "Failed formulae:" >&2
+            printf '%b\n' "$failures" | sed '/^$/d' >&2
+          fi
+          exit "$status"
 
       - name: Plain formulae win on PATH
         # versioned formulae are keg-only, so the plain binary must stay the one on PATH
