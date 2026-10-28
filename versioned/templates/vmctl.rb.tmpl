@@ -1,0 +1,38 @@
+class @@CLASS@@ < Formula
+  desc "Command-line tool for migrating and verifying VictoriaMetrics data"
+  homepage "https://docs.victoriametrics.com/victoriametrics/vmctl/"
+  version "@@VERSION@@"
+  license "Apache-2.0"
+  keg_only :versioned_formula
+
+  on_macos do
+    on_arm do
+      url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-darwin-arm64-v#{version}.tar.gz"
+      sha256 "@@SHA_DARWIN_ARM64@@"
+    end
+    on_intel do
+      url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-darwin-amd64-v#{version}.tar.gz"
+      sha256 "@@SHA_DARWIN_AMD64@@"
+    end
+  end
+
+  on_linux do
+    on_arm do
+      url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-linux-arm64-v#{version}.tar.gz"
+      sha256 "@@SHA_LINUX_ARM64@@"
+    end
+    on_intel do
+      url "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v#{version}/vmutils-linux-amd64-v#{version}.tar.gz"
+      sha256 "@@SHA_LINUX_AMD64@@"
+    end
+  end
+
+  def install
+    bin.install "vmctl-prod" => "vmctl"
+  end
+
+  test do
+    assert_match version.to_s, shell_output("#{bin}/vmctl --version")
+    assert_match "vm-native-src-addr", shell_output("#{bin}/vmctl vm-native --help")
+  end
+end

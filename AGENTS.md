@@ -18,6 +18,25 @@ Reference for anyone (or any tool) changing this tap.
   `free_port`; the spawned process is always terminated in `ensure`.
 - Names that also exist in homebrew-core get aliases in `Aliases/` (symlinks to the formula).
 
+### Versioned formulae
+
+- `Formula/<name>@<X.Y.Z>.rb` installs an older upstream release (for example `vmctl@1.152.0`).
+  They are `keg_only :versioned_formula`, so they never link into the prefix and coexist
+  with the current formula and each other.
+- Per-version state lives under the full name: `etc/"<name>@<X.Y.Z>"`,
+  `var/"<name>@<X.Y.Z>-data"` and `var/"log/<name>@<X.Y.Z>.log"`. Only one version of a
+  daemon can run as a service on its default port at a time; the caveats say so.
+- Never hand-edit a versioned file. Change `versioned/templates/<formula>.rb.tmpl` and rerun
+  `scripts/versioned-generate.sh ... --regenerate`, or, for a fix limited to one release, add a
+  sed script at `versioned/overrides/<name>@<X.Y.Z>.sed`, which is applied after rendering.
+- Tests live in `tests/versioned/`; run `bash tests/versioned/run.sh`.
+- Which versions exist is decided by two checked-in lists: `versioned/include.txt` (format
+  `<owner/repo> v<X.Y.Z>`; releases older than the 2025-08-01 cutoff that still qualify) and
+  `versioned/exclude.txt` (format `<formula>@<X.Y.Z> <reason>`, one line each, for releases
+  that cannot pass CI). `scripts/versioned-missing.sh` applies both. The generator and
+  the bump job skip excluded entries, so a deleted file is never re-added. See
+  `docs/versioned-formulae-design.md`.
+
 ## Adding a formula
 
 1. Add `Formula/<name>.rb`; `test.yml` picks it up automatically.
