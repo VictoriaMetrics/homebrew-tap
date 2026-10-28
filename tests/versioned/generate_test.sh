@@ -46,7 +46,8 @@ test_renders_vmctl() {
   assert_eq "${f}" "${out}" "printed path"
   assert_contains "${f}" 'class VmctlAT11520 < Formula'
   assert_contains "${f}" 'version "1.152.0"'
-  assert_contains "${f}" 'keg_only :versioned_formula'
+  assert_contains "${f}" 'keg_only "it is an older release of vmctl"'
+  ! grep -q ':versioned_formula$' "${f}" || fail "keg_only must not use :versioned_formula"
   local shas=(
     22192226f8f6dd7e4950630c74fa4e32a4f08e1f220913f76b14db899977f2a1
     8f7f98934c4ca27a48168217e6e28a16e74a69c9d7bbd9aed96ebd275a26051e
@@ -79,6 +80,15 @@ test_missing_checksum_writes_nothing() {
   generate vmctl vmutils 9.9.9 >/dev/null 2>&1 || rc=$?
   assert_eq 1 "${rc}" "exit code"
   assert_absent "${root}/Formula/vmctl@9.9.9.rb"
+}
+
+test_prefix_mismatch_rejected() {
+  new_root
+  local rc=0
+  generate vmctl victoria-metrics 1.152.0 >/dev/null 2>&1 || rc=$?
+  assert_eq 1 "${rc}" "exit code"
+  assert_absent "${root}/Formula/vmctl@1.152.0.rb"
+  assert_absent "${root}/Formula/victoriametrics@1.152.0.rb"
 }
 
 test_skip_existing() {
@@ -120,6 +130,7 @@ tests=(
   test_renders_vmctl
   test_paths_are_per_version
   test_missing_checksum_writes_nothing
+  test_prefix_mismatch_rejected
   test_skip_existing
   test_excluded_skipped
   test_override_applied

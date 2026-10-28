@@ -87,7 +87,7 @@ brew search vmctl@                 # which releases are available
 - **The current newest release also gets a versioned formula**, so `vmctl@1.155.0` exists alongside
   `vmctl` while 1.155.0 is newest. A pinned name keeps working after the plain formula moves on.
   *(My call.)*
-- **Versioned formulae are keg-only** (`keg_only :versioned_formula`). They are not linked into
+- **Versioned formulae are keg-only** (`keg_only "it is an older release of <name>"`, a custom reason because Homebrew auto-links `:versioned_formula` kegs when the plain formula is absent). They are not linked into
   the Homebrew prefix, so they never shadow the plain formula. Users run them by full path or link
   one explicitly. The README explains both. *(My call; this is the Homebrew convention.)*
 - **Per-version state.** Versioned daemons keep the `service do` block, but their data

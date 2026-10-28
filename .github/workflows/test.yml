@@ -55,21 +55,88 @@ jobs:
           echo "Selected: $list"
           echo "list=$list" >> "$GITHUB_OUTPUT"
 
-      - name: Install
+      - name: Install and test
+        # Versioned formulae are processed one at a time, grouped by version (sort -V, then
+        # formula). Tarballs are large (vmutils is ~143 MB and backs ~150 formulae across 38
+        # versions), so a download is deleted only after the last formula of the version that
+        # shares it has been tested, and each keg is uninstalled after its test. The lowest
+        # version of each tool stays installed so the PATH check runs next to a keg-only keg.
         env:
           FORMULAE: ${{ steps.select.outputs.list }}
         run: |
+          plain=""
+          versioned=""
           for f in $FORMULAE; do
-            brew install "victoriametrics/tap/$f"
+            case "$f" in
+              *@*) versioned="$versioned $f" ;;
+              *) plain="$plain $f" ;;
+            esac
           done
 
-      - name: Test
-        env:
-          FORMULAE: ${{ steps.select.outputs.list }}
-        run: |
-          for f in $FORMULAE; do
-            brew test "victoriametrics/tap/$f"
+          status=0
+          failures=""
+          fail() { failures="$failures\n$1: $2"; status=1; }
+
+          for f in $plain; do
+            brew install "victoriametrics/tap/$f" || { fail "$f" install; continue; }
+            brew test "victoriametrics/tap/$f" || fail "$f" test
           done
+
+          # "<version> <formula>" lines ordered by version, then formula
+          ordered="$(for f in $versioned; do echo "${f#*@} $f"; done | sort -V)"
+
+          # the lowest version of each tool (first seen in version order) stays installed
+          keep=""
+          while read -r _ f; do
+            [ -n "$f" ] || continue
+            case " $keep " in
+              *" ${f%@*}@"*) ;;
+              *) keep="$keep $f" ;;
+            esac
+          done <<EOF
+          $ordered
+          EOF
+
+          for version in $(echo "$ordered" | awk '{print $1}' | uniq); do
+            group="$(echo "$ordered" | awk -v v="$version" '$1 == v {print $2}')"
+            # download of each formula, so formulae sharing a tarball share a path
+            caches=""
+            for f in $group; do
+              caches="$caches
+          $f $(brew --cache "victoriametrics/tap/$f")"
+            done
+            remaining="$group"
+            for f in $group; do
+              echo "::group::$f"
+              installed=0
+              if brew install "victoriametrics/tap/$f"; then
+                installed=1
+                brew test "victoriametrics/tap/$f" || fail "$f" test
+              else
+                fail "$f" install
+              fi
+              remaining="$(echo "$remaining" | awk -v f="$f" '$1 != f')"
+              mine="$(echo "$caches" | awk -v f="$f" '$1 == f {print $2}')"
+              shared=0
+              for r in $remaining; do
+                [ "$(echo "$caches" | awk -v f="$r" '$1 == f {print $2}')" = "$mine" ] && shared=1
+              done
+              [ "$shared" = 1 ] || rm -f "$mine"
+              if [ "$installed" = 1 ]; then
+                case " $keep " in
+                  *" $f "*) ;;
+                  *) brew uninstall --force "victoriametrics/tap/$f" || fail "$f" uninstall ;;
+                esac
+              fi
+              echo "::endgroup::"
+            done
+          done
+
+          if [ "$status" -ne 0 ]; then
+            echo "Failed formulae:" >&2
+            printf '%b\n' "$failures" | sed '/^$/d' >&2
+          fi
+          exit "$status"
 
       - name: Plain formulae win on PATH
         # versioned formulae are keg-only, so the plain binary must stay the one on PATH

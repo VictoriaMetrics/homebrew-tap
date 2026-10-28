@@ -2,6 +2,7 @@
 
 ## tip
 
+* FEATURE: add versioned formulae (`<formula>@<X.Y.Z>`) for every open-source release since 2025-08-01, plus v1.110.0 and v1.122.0.
 * FEATURE: [victoriametrics](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/): update to [v1.154.0](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.154.0).
 * FEATURE: [vmauth](https://docs.victoriametrics.com/victoriametrics/vmauth/): update to [v1.154.0](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.154.0).
 * FEATURE: [vmalert](https://docs.victoriametrics.com/victoriametrics/vmalert/): update to [v1.154.0](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.154.0).

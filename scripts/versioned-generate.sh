@@ -119,6 +119,12 @@ fi
   exit 1
 }
 
+# A wrong formula-to-prefix pairing would write another tarball's checksums.
+grep '^ *url ' "${template}" | grep -qF "/${prefix}-" || {
+  echo "prefix ${prefix} does not match the url lines of ${template}" >&2
+  exit 1
+}
+
 if [[ -e "${target}" ]] && [[ "${regenerate}" = 0 ]]
 then
   echo "exists: ${target}" >&2
