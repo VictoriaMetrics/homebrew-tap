@@ -56,8 +56,10 @@ jobs:
           echo "list=$list" >> "$GITHUB_OUTPUT"
 
       - name: Install and test
-        # Versioned tarballs are large (vmutils is ~143 MB, ~150 versions), so each one is
-        # installed, tested, then its download and keg are removed before the next. The lowest
+        # Versioned formulae are processed one at a time, grouped by version (sort -V, then
+        # formula). Tarballs are large (vmutils is ~143 MB and backs ~150 formulae across 38
+        # versions), so a download is deleted only after the last formula of the version that
+        # shares it has been tested, and each keg is uninstalled after its test. The lowest
         # version of each tool stays installed so the PATH check runs next to a keg-only keg.
         env:
           FORMULAE: ${{ steps.select.outputs.list }}
@@ -73,35 +75,61 @@ jobs:
 
           status=0
           failures=""
+          fail() { failures="$failures\n$1: $2"; status=1; }
 
           for f in $plain; do
-            brew install "victoriametrics/tap/$f" || { failures="$failures\n$f: install"; status=1; continue; }
-            brew test "victoriametrics/tap/$f" || { failures="$failures\n$f: test"; status=1; }
+            brew install "victoriametrics/tap/$f" || { fail "$f" install; continue; }
+            brew test "victoriametrics/tap/$f" || fail "$f" test
           done
 
-          # lowest version per tool stays installed
+          # "<version> <formula>" lines ordered by version, then formula
+          ordered="$(for f in $versioned; do echo "${f#*@} $f"; done | sort -V)"
+
+          # the lowest version of each tool (first seen in version order) stays installed
           keep=""
-          for name in $(for f in $versioned; do echo "${f%@*}"; done | sort -u); do
-            lowest="$(for f in $versioned; do
-              [ "${f%@*}" = "$name" ] && echo "${f#*@}"
-            done | sort -V | head -n 1)"
-            keep="$keep $name@$lowest"
-          done
-
-          for f in $versioned; do
-            echo "::group::$f"
-            if brew install "victoriametrics/tap/$f"; then
-              brew test "victoriametrics/tap/$f" || { failures="$failures\n$f: test"; status=1; }
-            else
-              failures="$failures\n$f: install"
-              status=1
-            fi
-            rm -f "$(brew --cache "victoriametrics/tap/$f")"
+          while read -r _ f; do
+            [ -n "$f" ] || continue
             case " $keep " in
-              *" $f "*) ;;
-              *) brew uninstall --force "victoriametrics/tap/$f" || true ;;
+              *" ${f%@*}@"*) ;;
+              *) keep="$keep $f" ;;
             esac
-            echo "::endgroup::"
+          done <<EOF
+          $ordered
+          EOF
+
+          for version in $(echo "$ordered" | awk '{print $1}' | uniq); do
+            group="$(echo "$ordered" | awk -v v="$version" '$1 == v {print $2}')"
+            # download of each formula, so formulae sharing a tarball share a path
+            caches=""
+            for f in $group; do
+              caches="$caches
+          $f $(brew --cache "victoriametrics/tap/$f")"
+            done
+            remaining="$group"
+            for f in $group; do
+              echo "::group::$f"
+              installed=0
+              if brew install "victoriametrics/tap/$f"; then
+                installed=1
+                brew test "victoriametrics/tap/$f" || fail "$f" test
+              else
+                fail "$f" install
+              fi
+              remaining="$(echo "$remaining" | awk -v f="$f" '$1 != f')"
+              mine="$(echo "$caches" | awk -v f="$f" '$1 == f {print $2}')"
+              shared=0
+              for r in $remaining; do
+                [ "$(echo "$caches" | awk -v f="$r" '$1 == f {print $2}')" = "$mine" ] && shared=1
+              done
+              [ "$shared" = 1 ] || rm -f "$mine"
+              if [ "$installed" = 1 ]; then
+                case " $keep " in
+                  *" $f "*) ;;
+                  *) brew uninstall --force "victoriametrics/tap/$f" || fail "$f" uninstall ;;
+                esac
+              fi
+              echo "::endgroup::"
+            done
           done
 
           if [ "$status" -ne 0 ]; then

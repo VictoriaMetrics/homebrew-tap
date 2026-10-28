@@ -53,7 +53,7 @@ Binaries are installed under their plain names (`vmctl`, `vmagent`, `vmalert`, `
 
 ## Installing an older version
 
-Every release since 2025-08-01 is also available as a versioned formula named `name@X.Y.Z`, for example `vmctl@1.152.0` or `victorialogs@1.40.0`:
+Every open-source release since 2025-08-01 is also available as a versioned formula named `name@X.Y.Z`, for example `vmctl@1.152.0` or `victorialogs@1.40.0`:
 
 ```sh
 brew search vmctl@
@@ -71,6 +71,12 @@ Or link it, running `brew unlink vmctl` first if the plain formula is linked:
 ```sh
 brew unlink vmctl
 brew link --force vmctl@1.152.0
+```
+
+To switch back to the plain formula:
+
+```sh
+brew unlink vmctl@1.152.0 && brew link vmctl
 ```
 
 Each version keeps its configuration, data and logs under its full name (for example `var/victoriametrics@1.152.0-data`), but daemons keep the default port, so only one version of a daemon can run as a service at a time.
