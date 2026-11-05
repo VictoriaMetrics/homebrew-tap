@@ -82,6 +82,7 @@ jobs:
         run: |
           set -euo pipefail
           names=""
+          added=()
           for pair in $BEHIND; do
             formula="${pair%%:*}"
             rest="${pair#*:}"
@@ -114,12 +115,27 @@ jobs:
             changelog_line="* FEATURE: [${formula}](https://docs.victoriametrics.com/${docs}/): update to [v${VERSION}](https://github.com/${REPO}/releases/tag/v${VERSION})."
             awk -v line="$changelog_line" '{ print } /^## tip$/ { getline; print; print line }' CHANGELOG.md > CHANGELOG.md.new
             mv CHANGELOG.md.new CHANGELOG.md
+            # The newest release's versioned formula rides in this PR; the generator skips
+            # excluded releases, so add only a file it actually wrote.
+            versioned="Formula/${formula}@${VERSION}.rb"
+            if [ ! -e "$versioned" ]; then
+              scripts/versioned-generate.sh --repo "$REPO" --prefix "$prefix" --formula "$formula" --version "$VERSION"
+              if [ -e "$versioned" ]; then
+                added+=("$versioned")
+                changelog_line="* FEATURE: [${formula}](https://docs.victoriametrics.com/${docs}/): add \`${formula}@${VERSION}\` versioned formula."
+                awk -v line="$changelog_line" '{ print } /^## tip$/ { getline; print; print line }' CHANGELOG.md > CHANGELOG.md.new
+                mv CHANGELOG.md.new CHANGELOG.md
+              fi
+            fi
             names="${names:+$names, }${formula}"
           done
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           branch="${{ steps.check.outputs.branch }}"
           git checkout -b "$branch"
+          if [ "${#added[@]}" -gt 0 ]; then
+            git add -- "${added[@]}"
+          fi
           git commit -am "${names}: update to ${VERSION}"
           git push origin "$branch"
           gh pr create \
@@ -131,20 +147,82 @@ jobs:
         if: steps.check.outputs.bump == 'true' || steps.check.outputs.verify_existing == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.check.outputs.branch }}
         run: |
           set -euo pipefail
-          branch="${{ steps.check.outputs.branch }}"
-          dispatched_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          gh workflow run test.yml --ref "$branch"
-          run_id=""
-          for _ in $(seq 1 24); do
-            sleep 5
-            run_id="$(gh run list --workflow test.yml --branch "$branch" --event workflow_dispatch \
-              --created ">=${dispatched_at}" --limit 1 --json databaseId --jq '.[0].databaseId // empty')"
-            [ -n "$run_id" ] && break
+          scripts/ci-dispatch-and-wait.sh "$BRANCH"
+
+      # Releases that releases/latest misses (an older patch, or anything a past run skipped)
+      # get their own PR per group on a branch named after the list, so a broken old release
+      # never holds up the plain bump and a rerun finds the same branch.
+      - name: Add missing versioned formulae
+        if: ${{ !cancelled() && steps.check.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GROUP: ${{ matrix.group }}
+          REPO: ${{ matrix.repo }}
+          FORMULAS: ${{ matrix.formulas }}
+          LATEST: ${{ steps.check.outputs.latest }}
+          BEHIND: ${{ steps.check.outputs.behind }}
+        run: |
+          set -euo pipefail
+          # Start from the commit this job checked out, not from the plain bump branch.
+          git checkout --quiet --force --detach "$GITHUB_SHA"
+          git clean -fdq
+          pairs=""
+          for pair in $FORMULAS; do
+            rest="${pair#*:}"
+            pairs="${pairs:+$pairs }${pair%%:*}:${rest%%:*}"
           done
-          if [ -z "$run_id" ]; then
-            echo "Dispatched test run never appeared for ${branch}." >&2
-            exit 1
+          args=(--repo "$REPO" --pairs "$pairs")
+          # While any formula is behind, the newest release's versioned formulae belong to
+          # the plain bump PR (new or already open), not to this one.
+          if [ -n "$BEHIND" ]; then
+            args+=(--exclude-version "$LATEST")
           fi
-          gh run watch "$run_id" --exit-status
+          missing="$(scripts/versioned-missing.sh "${args[@]}")"
+          if [ -z "$missing" ]; then
+            echo "No missing versioned formulae for ${REPO}."
+            exit 0
+          fi
+          hash="$(printf '%s\n' "$missing" | sort | shasum -a 256 | cut -c1-8)"
+          branch="versioned-${GROUP}-${hash}"
+          if git ls-remote --exit-code origin "refs/heads/${branch}" >/dev/null 2>&1; then
+            echo "Branch ${branch} already exists; re-verifying its CI instead of re-pushing."
+            scripts/ci-dispatch-and-wait.sh "$branch"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          added=()
+          list=""
+          # fd 3 keeps the generator off the list on stdin.
+          while read -r formula version <&3; do
+            entry=""
+            for pair in $FORMULAS; do
+              if [ "${pair%%:*}" = "$formula" ]; then
+                entry="$pair"
+              fi
+            done
+            rest="${entry#*:}"
+            prefix="${rest%%:*}"
+            docs="${rest#*:}"
+            file="Formula/${formula}@${version}.rb"
+            scripts/versioned-generate.sh --repo "$REPO" --prefix "$prefix" --formula "$formula" --version "$version"
+            test -e "$file"
+            added+=("$file")
+            changelog_line="* FEATURE: [${formula}](https://docs.victoriametrics.com/${docs}/): add \`${formula}@${version}\` versioned formula."
+            awk -v line="$changelog_line" '{ print } /^## tip$/ { getline; print; print line }' CHANGELOG.md > CHANGELOG.md.new
+            mv CHANGELOG.md.new CHANGELOG.md
+            list="${list}- \`${formula}@${version}\`"$'\n'
+          done 3<<< "$missing"
+          subject="${GROUP}: add versioned formulae for ${#added[@]} releases"
+          git add -- CHANGELOG.md "${added[@]}"
+          git commit -m "$subject"
+          git push origin "$branch"
+          gh pr create --repo VictoriaMetrics/homebrew-tap \
+            --title "$subject" \
+            --body "$(printf 'Versioned formulae for %s releases the tap does not have yet. Checksums come from the upstream release checksum files.\n\n%s' "$REPO" "$list")" \
+            --base main --head "$branch"
+          scripts/ci-dispatch-and-wait.sh "$branch"
