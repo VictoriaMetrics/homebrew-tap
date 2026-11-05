@@ -37,11 +37,11 @@ brew install victoriametrics/tap/vmctl
 
 | Formula | Alias | Version | Description |
 |---------|-------|---------|-------------|
-| `vmctl` | | 1.152.0 | Command-line tool for migrating and verifying VictoriaMetrics data. [Docs](https://docs.victoriametrics.com/victoriametrics/vmctl/) |
-| `vmagent` | | 1.152.0 | Agent for collecting metrics and forwarding them to VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmagent/) |
-| `vmalert` | | 1.152.0 | Executes alerting and recording rules against VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmalert/) |
-| `vmauth` | | 1.152.0 | HTTP proxy, auth gateway and load balancer for VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmauth/) |
-| `victoriametrics` | `vmet`, `victoria-metrics` | 1.152.0 | Single-node VictoriaMetrics time series database. [Docs](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/) |
+| `vmctl` | | 1.154.0 | Command-line tool for migrating and verifying VictoriaMetrics data. [Docs](https://docs.victoriametrics.com/victoriametrics/vmctl/) |
+| `vmagent` | | 1.154.0 | Agent for collecting metrics and forwarding them to VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmagent/) |
+| `vmalert` | | 1.154.0 | Executes alerting and recording rules against VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmalert/) |
+| `vmauth` | | 1.154.0 | HTTP proxy, auth gateway and load balancer for VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmauth/) |
+| `victoriametrics` | `vmet`, `victoria-metrics` | 1.154.0 | Single-node VictoriaMetrics time series database. [Docs](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/) |
 | `victorialogs` | `vlog`, `victoria-logs` | 1.53.0 | VictoriaLogs database for logs. [Docs](https://docs.victoriametrics.com/victorialogs/) |
 | `victoriatraces` | `vtrace`, `victoria-traces` | 0.11.1 | VictoriaTraces database for distributed traces. [Docs](https://docs.victoriametrics.com/victoriatraces/) |
 
@@ -50,6 +50,38 @@ The `victoriametrics` and `victorialogs` names also exist in homebrew-core. To b
 Binaries are installed under their plain names (`vmctl`, `vmagent`, `vmalert`, `vmauth`, `victoria-metrics`, `victoria-logs`, `victoria-traces`). In the release tarballs the same binaries carry a `-prod` suffix.
 
 `victoriametrics` and `victorialogs` also exist in homebrew-core. The same formula name cannot be installed from both sources on one machine; run `brew uninstall victoriametrics` (or `victorialogs`) before installing the tap version.
+
+## Installing an older version
+
+Every open-source release since 2025-08-01 is also available as a versioned formula named `name@X.Y.Z`, for example `vmctl@1.152.0` or `victorialogs@1.40.0`:
+
+```sh
+brew search vmctl@
+brew install vmctl@1.152.0
+```
+
+Versioned formulae are keg-only, so they never replace the plain formula on your `PATH` and can be installed side by side with it. Run a binary straight from its keg:
+
+```sh
+"$(brew --prefix vmctl@1.152.0)/bin/vmctl" --version
+```
+
+Or link it, running `brew unlink vmctl` first if the plain formula is linked:
+
+```sh
+brew unlink vmctl
+brew link --force vmctl@1.152.0
+```
+
+To switch back to the plain formula:
+
+```sh
+brew unlink vmctl@1.152.0 && brew link vmctl
+```
+
+Each version keeps its configuration, data and logs under its full name (for example `var/victoriametrics@1.152.0-data`), but daemons keep the default port, so only one version of a daemon can run as a service at a time.
+
+Coverage is the open-source releases published since 2025-08-01, plus v1.110.0 and v1.122.0. Enterprise-only LTS patch releases are not packaged.
 
 ## Updating
 

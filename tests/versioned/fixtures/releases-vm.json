@@ -1,0 +1,391 @@
+[
+  {
+    "tag_name": "v1.152.0",
+    "draft": false,
+    "prerelease": false,
+    "published_at": "2026-09-14T10:00:00Z",
+    "assets": [
+      {
+        "name": "vmutils-darwin-arm64-v1.152.0.tar.gz"
+      },
+      {
+        "name": "vmutils-darwin-arm64-v1.152.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-darwin-amd64-v1.152.0.tar.gz"
+      },
+      {
+        "name": "vmutils-darwin-amd64-v1.152.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-linux-arm64-v1.152.0.tar.gz"
+      },
+      {
+        "name": "vmutils-linux-arm64-v1.152.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-linux-amd64-v1.152.0.tar.gz"
+      },
+      {
+        "name": "vmutils-linux-amd64-v1.152.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-arm64-v1.152.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-darwin-arm64-v1.152.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-amd64-v1.152.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-darwin-amd64-v1.152.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-arm64-v1.152.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-linux-arm64-v1.152.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-amd64-v1.152.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-linux-amd64-v1.152.0_checksums.txt"
+      }
+    ]
+  },
+  {
+    "tag_name": "v1.153.0",
+    "draft": true,
+    "prerelease": false,
+    "published_at": "2026-09-20T10:00:00Z",
+    "assets": [
+      {
+        "name": "vmutils-darwin-arm64-v1.153.0.tar.gz"
+      },
+      {
+        "name": "vmutils-darwin-arm64-v1.153.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-darwin-amd64-v1.153.0.tar.gz"
+      },
+      {
+        "name": "vmutils-darwin-amd64-v1.153.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-linux-arm64-v1.153.0.tar.gz"
+      },
+      {
+        "name": "vmutils-linux-arm64-v1.153.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-linux-amd64-v1.153.0.tar.gz"
+      },
+      {
+        "name": "vmutils-linux-amd64-v1.153.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-arm64-v1.153.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-darwin-arm64-v1.153.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-amd64-v1.153.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-darwin-amd64-v1.153.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-arm64-v1.153.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-linux-arm64-v1.153.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-amd64-v1.153.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-linux-amd64-v1.153.0_checksums.txt"
+      }
+    ]
+  },
+  {
+    "tag_name": "v1.154.0-rc1",
+    "draft": false,
+    "prerelease": true,
+    "published_at": "2026-10-01T10:00:00Z",
+    "assets": [
+      {
+        "name": "vmutils-darwin-arm64-v1.154.0-rc1.tar.gz"
+      },
+      {
+        "name": "vmutils-darwin-arm64-v1.154.0-rc1_checksums.txt"
+      },
+      {
+        "name": "vmutils-darwin-amd64-v1.154.0-rc1.tar.gz"
+      },
+      {
+        "name": "vmutils-darwin-amd64-v1.154.0-rc1_checksums.txt"
+      },
+      {
+        "name": "vmutils-linux-arm64-v1.154.0-rc1.tar.gz"
+      },
+      {
+        "name": "vmutils-linux-arm64-v1.154.0-rc1_checksums.txt"
+      },
+      {
+        "name": "vmutils-linux-amd64-v1.154.0-rc1.tar.gz"
+      },
+      {
+        "name": "vmutils-linux-amd64-v1.154.0-rc1_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-arm64-v1.154.0-rc1.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-darwin-arm64-v1.154.0-rc1_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-amd64-v1.154.0-rc1.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-darwin-amd64-v1.154.0-rc1_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-arm64-v1.154.0-rc1.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-linux-arm64-v1.154.0-rc1_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-amd64-v1.154.0-rc1.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-linux-amd64-v1.154.0-rc1_checksums.txt"
+      }
+    ]
+  },
+  {
+    "tag_name": "v1.136.5",
+    "draft": false,
+    "prerelease": false,
+    "published_at": "2026-03-02T10:00:00Z",
+    "assets": [
+      {
+        "name": "vmutils-darwin-arm64-v1.136.5-enterprise.tar.gz"
+      },
+      {
+        "name": "vmutils-enterprise-darwin-arm64-v1.136.5_checksums.txt"
+      },
+      {
+        "name": "vmutils-darwin-amd64-v1.136.5-enterprise.tar.gz"
+      },
+      {
+        "name": "vmutils-enterprise-darwin-amd64-v1.136.5_checksums.txt"
+      },
+      {
+        "name": "vmutils-linux-arm64-v1.136.5-enterprise.tar.gz"
+      },
+      {
+        "name": "vmutils-enterprise-linux-arm64-v1.136.5_checksums.txt"
+      },
+      {
+        "name": "vmutils-linux-amd64-v1.136.5-enterprise.tar.gz"
+      },
+      {
+        "name": "vmutils-enterprise-linux-amd64-v1.136.5_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-arm64-v1.136.5-enterprise.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-enterprise-darwin-arm64-v1.136.5_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-amd64-v1.136.5-enterprise.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-enterprise-darwin-amd64-v1.136.5_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-arm64-v1.136.5-enterprise.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-enterprise-linux-arm64-v1.136.5_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-amd64-v1.136.5-enterprise.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-enterprise-linux-amd64-v1.136.5_checksums.txt"
+      }
+    ]
+  },
+  {
+    "tag_name": "v1.120.0",
+    "draft": false,
+    "prerelease": false,
+    "published_at": "2025-06-01T10:00:00Z",
+    "assets": [
+      {
+        "name": "vmutils-darwin-arm64-v1.120.0.tar.gz"
+      },
+      {
+        "name": "vmutils-darwin-arm64-v1.120.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-darwin-amd64-v1.120.0.tar.gz"
+      },
+      {
+        "name": "vmutils-darwin-amd64-v1.120.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-linux-arm64-v1.120.0.tar.gz"
+      },
+      {
+        "name": "vmutils-linux-arm64-v1.120.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-linux-amd64-v1.120.0.tar.gz"
+      },
+      {
+        "name": "vmutils-linux-amd64-v1.120.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-arm64-v1.120.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-darwin-arm64-v1.120.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-amd64-v1.120.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-darwin-amd64-v1.120.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-arm64-v1.120.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-linux-arm64-v1.120.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-amd64-v1.120.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-linux-amd64-v1.120.0_checksums.txt"
+      }
+    ]
+  },
+  {
+    "tag_name": "v1.110.0",
+    "draft": false,
+    "prerelease": false,
+    "published_at": "2025-01-27T10:00:00Z",
+    "assets": [
+      {
+        "name": "vmutils-darwin-arm64-v1.110.0.tar.gz"
+      },
+      {
+        "name": "vmutils-darwin-arm64-v1.110.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-darwin-amd64-v1.110.0.tar.gz"
+      },
+      {
+        "name": "vmutils-darwin-amd64-v1.110.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-linux-arm64-v1.110.0.tar.gz"
+      },
+      {
+        "name": "vmutils-linux-arm64-v1.110.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-linux-amd64-v1.110.0.tar.gz"
+      },
+      {
+        "name": "vmutils-linux-amd64-v1.110.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-arm64-v1.110.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-darwin-arm64-v1.110.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-amd64-v1.110.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-darwin-amd64-v1.110.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-arm64-v1.110.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-linux-arm64-v1.110.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-amd64-v1.110.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-linux-amd64-v1.110.0_checksums.txt"
+      }
+    ]
+  },
+  {
+    "tag_name": "v1.151.0",
+    "draft": false,
+    "prerelease": false,
+    "published_at": "2026-09-01T10:00:00Z",
+    "assets": [
+      {
+        "name": "vmutils-darwin-arm64-v1.151.0.tar.gz"
+      },
+      {
+        "name": "vmutils-darwin-arm64-v1.151.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-darwin-amd64-v1.151.0.tar.gz"
+      },
+      {
+        "name": "vmutils-darwin-amd64-v1.151.0_checksums.txt"
+      },
+      {
+        "name": "vmutils-linux-arm64-v1.151.0.tar.gz"
+      },
+      {
+        "name": "vmutils-linux-amd64-v1.151.0.tar.gz"
+      },
+      {
+        "name": "vmutils-linux-amd64-v1.151.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-arm64-v1.151.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-darwin-arm64-v1.151.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-darwin-amd64-v1.151.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-darwin-amd64-v1.151.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-arm64-v1.151.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-linux-arm64-v1.151.0_checksums.txt"
+      },
+      {
+        "name": "victoria-metrics-linux-amd64-v1.151.0.tar.gz"
+      },
+      {
+        "name": "victoria-metrics-linux-amd64-v1.151.0_checksums.txt"
+      }
+    ]
+  }
+]
