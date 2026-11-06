@@ -55,18 +55,28 @@ jobs:
           done
           branch="bump-${latest}${suffix}"
           bump=true
+          refresh=false
           verify_existing=false
           if [ -z "$behind" ]; then
             echo "All formulas are current for ${REPO} (latest: $latest)."
             bump=false
           elif git ls-remote --exit-code origin "refs/heads/${branch}" >/dev/null 2>&1; then
-            echo "Bump branch ${branch} already exists; re-verifying its CI instead of re-pushing."
-            bump=false
-            verify_existing=true
+            # A branch behind main conflicts on CHANGELOG/README sooner or later; redo the bump on
+            # top of main instead of re-testing a branch that cannot merge.
+            behind_main="$(gh api "repos/${GITHUB_REPOSITORY}/compare/main...${branch}" --jq .behind_by)"
+            if [ "$behind_main" -gt 0 ]; then
+              echo "Bump branch ${branch} is ${behind_main} commits behind main; redoing the bump on top of main."
+              refresh=true
+            else
+              echo "Bump branch ${branch} already exists; re-verifying its CI instead of re-pushing."
+              bump=false
+              verify_existing=true
+            fi
           fi
           {
             echo "latest=$latest"
             echo "bump=$bump"
+            echo "refresh=$refresh"
             echo "verify_existing=$verify_existing"
             echo "branch=$branch"
             echo "behind=${behind# }"
@@ -77,8 +87,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ matrix.repo }}
+          FORMULAS: ${{ matrix.formulas }}
           VERSION: ${{ steps.check.outputs.latest }}
           BEHIND: ${{ steps.check.outputs.behind }}
+          REFRESH: ${{ steps.check.outputs.refresh }}
         run: |
           set -euo pipefail
           names=""
@@ -132,16 +144,37 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           branch="${{ steps.check.outputs.branch }}"
-          git checkout -b "$branch"
+          git add -u
           if [ "${#added[@]}" -gt 0 ]; then
             git add -- "${added[@]}"
           fi
-          git commit -am "${names}: update to ${VERSION}"
+          if [ "$REFRESH" = true ]; then
+            scripts/ci-push-merge.sh "$branch"
+            exit 0
+          fi
+          git checkout -b "$branch"
+          git commit -m "${names}: update to ${VERSION}"
           git push origin "$branch"
-          gh pr create \
+          pr_url="$(gh pr create --repo "$GITHUB_REPOSITORY" \
             --title "${names}: update to ${VERSION}" \
             --body "Automated update to v${VERSION} from ${REPO}. Checksums computed from the release assets." \
-            --base main --head "$branch"
+            --base main --head "$branch")"
+          # Older bump PRs for this group's formulae are superseded; their releases stay
+          # installable as versioned formulae.
+          gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 100 --json number,headRefName \
+            --jq '.[] | "\(.number) \(.headRefName)"' > /tmp/open-prs
+          while read -r number head; do
+            case "$head" in bump-*) ;; *) continue ;; esac
+            [ "$head" != "$branch" ] || continue
+            ours=true
+            for name in $(printf '%s' "${head#bump-*-}" | tr '-' ' '); do
+              case " $FORMULAS" in *" ${name}:"*) ;; *) ours=false ;; esac
+            done
+            if [ "$ours" = true ]; then
+              gh pr close "$number" --repo "$GITHUB_REPOSITORY" \
+                --comment "Superseded by ${pr_url} (v${VERSION}). If main lacks its versioned formula, the missing-releases step adds it."
+            fi
+          done < /tmp/open-prs
 
       - name: Run CI on the bump branch and wait for it
         if: steps.check.outputs.bump == 'true' || steps.check.outputs.verify_existing == 'true'
@@ -187,14 +220,19 @@ jobs:
           fi
           hash="$(printf '%s\n' "$missing" | sort | shasum -a 256 | cut -c1-8)"
           branch="versioned-${GROUP}-${hash}"
+          refresh=false
           if git ls-remote --exit-code origin "refs/heads/${branch}" >/dev/null 2>&1; then
-            echo "Branch ${branch} already exists; re-verifying its CI instead of re-pushing."
-            scripts/ci-dispatch-and-wait.sh "$branch"
-            exit 0
+            behind_main="$(gh api "repos/${GITHUB_REPOSITORY}/compare/main...${branch}" --jq .behind_by)"
+            if [ "$behind_main" -eq 0 ]; then
+              echo "Branch ${branch} already exists; re-verifying its CI instead of re-pushing."
+              scripts/ci-dispatch-and-wait.sh "$branch"
+              exit 0
+            fi
+            echo "Branch ${branch} is ${behind_main} commits behind main; regenerating on top of main."
+            refresh=true
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$branch"
           added=()
           list=""
           # fd 3 keeps the generator off the list on stdin.
@@ -219,6 +257,12 @@ jobs:
           done 3<<< "$missing"
           subject="${GROUP}: add versioned formulae for ${#added[@]} releases"
           git add -- CHANGELOG.md "${added[@]}"
+          if [ "$refresh" = true ]; then
+            scripts/ci-push-merge.sh "$branch"
+            scripts/ci-dispatch-and-wait.sh "$branch"
+            exit 0
+          fi
+          git checkout -b "$branch"
           git commit -m "$subject"
           git push origin "$branch"
           gh pr create --repo VictoriaMetrics/homebrew-tap \
