@@ -1,5 +1,10 @@
 # VictoriaMetrics Homebrew Tap
 
+[![VictoriaMetrics version in this tap](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2FVictoriaMetrics%2Fhomebrew-tap%2Fmain%2FFormula%2Fvictoriametrics.rb&search=version%20%22%28%5B0-9%5D%5B%5E%22%5D%2A%29%22&replace=v%241&label=VictoriaMetrics&color=blue)](https://github.com/VictoriaMetrics/VictoriaMetrics/releases)
+[![VictoriaLogs version in this tap](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2FVictoriaMetrics%2Fhomebrew-tap%2Fmain%2FFormula%2Fvictorialogs.rb&search=version%20%22%28%5B0-9%5D%5B%5E%22%5D%2A%29%22&replace=v%241&label=VictoriaLogs&color=blue)](https://github.com/VictoriaMetrics/VictoriaLogs/releases)
+[![VictoriaTraces version in this tap](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2FVictoriaMetrics%2Fhomebrew-tap%2Fmain%2FFormula%2Fvictoriatraces.rb&search=version%20%22%28%5B0-9%5D%5B%5E%22%5D%2A%29%22&replace=v%241&label=VictoriaTraces&color=blue)](https://github.com/VictoriaMetrics/VictoriaTraces/releases)
+[![test](https://github.com/VictoriaMetrics/homebrew-tap/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/VictoriaMetrics/homebrew-tap/actions/workflows/test.yml)
+
 Homebrew formulae for VictoriaMetrics tools, built from the official release binaries.
 
 > [!WARNING]
