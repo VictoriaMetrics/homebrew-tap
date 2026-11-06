@@ -2,6 +2,7 @@
 
 ## tip
 
+* FEATURE: [victorialogs](https://docs.victoriametrics.com/victorialogs/): update to [v1.53.0](https://github.com/VictoriaMetrics/VictoriaLogs/releases/tag/v1.53.0).
 * FEATURE: [victoriametrics](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/): update to [v1.155.0](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.155.0).
 * FEATURE: [vmauth](https://docs.victoriametrics.com/victoriametrics/vmauth/): update to [v1.155.0](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.155.0).
 * FEATURE: [vmalert](https://docs.victoriametrics.com/victoriametrics/vmalert/): update to [v1.155.0](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.155.0).
