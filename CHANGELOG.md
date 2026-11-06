@@ -2,6 +2,8 @@
 
 ## tip
 
+* FEATURE: [victoriatraces](https://docs.victoriametrics.com/victoriatraces/): add `victoriatraces@0.13.0` versioned formula.
+* FEATURE: [victoriatraces](https://docs.victoriametrics.com/victoriatraces/): update to [v0.13.0](https://github.com/VictoriaMetrics/VictoriaTraces/releases/tag/v0.13.0).
 * FEATURE: [victorialogs](https://docs.victoriametrics.com/victorialogs/): update to [v1.53.0](https://github.com/VictoriaMetrics/VictoriaLogs/releases/tag/v1.53.0).
 * FEATURE: [victoriametrics](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/): update to [v1.155.0](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.155.0).
 * FEATURE: [vmauth](https://docs.victoriametrics.com/victoriametrics/vmauth/): update to [v1.155.0](https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.155.0).

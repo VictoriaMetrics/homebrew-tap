@@ -1,28 +1,28 @@
 class Victoriatraces < Formula
   desc "Fast and easy to use database for distributed traces"
   homepage "https://docs.victoriametrics.com/victoriatraces/"
-  version "0.11.1"
+  version "0.13.0"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
       url "https://github.com/VictoriaMetrics/VictoriaTraces/releases/download/v#{version}/victoria-traces-darwin-arm64-v#{version}.tar.gz"
-      sha256 "06dfee9581fadb5c05cbc214f46a1599d6d1453eb9658df4554d2c44588250e2"
+      sha256 "b0553e27fa77d979ab14032a3463dab5464776883cfb0bdc61fd071db93b8650"
     end
     on_intel do
       url "https://github.com/VictoriaMetrics/VictoriaTraces/releases/download/v#{version}/victoria-traces-darwin-amd64-v#{version}.tar.gz"
-      sha256 "62c9a80b0443aa2d888b60bc9879b30e0a1e7d1547134ca3ba4ec27b54983489"
+      sha256 "2847b3a8bafdd6755784fa1d3d5b5e08372587da08bce7098d882670f30b265e"
     end
   end
 
   on_linux do
     on_arm do
       url "https://github.com/VictoriaMetrics/VictoriaTraces/releases/download/v#{version}/victoria-traces-linux-arm64-v#{version}.tar.gz"
-      sha256 "c258b0b26276b80654635d667ca0aff0d61f546ea591b9de95f0127636e351ad"
+      sha256 "210bc863666865ba9a4ff0a19901318042da0c474d248fec69ca71c07b1e5f7a"
     end
     on_intel do
       url "https://github.com/VictoriaMetrics/VictoriaTraces/releases/download/v#{version}/victoria-traces-linux-amd64-v#{version}.tar.gz"
-      sha256 "ac831f2ed12806caa29b8369bb9e0a0fcd8153029f631e4784f51f83420c7f30"
+      sha256 "789e006d076f3c8b99de7bb1d0277024a7db776db0294d1c27fcc5422d98c4bc"
     end
   end
 
