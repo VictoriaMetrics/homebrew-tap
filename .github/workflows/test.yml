@@ -47,8 +47,11 @@ jobs:
             brew trust victoriametrics/tap
           fi
           # fail here, not mid-loop, if a versioned formula still cannot be loaded
-          sample="$(cd Formula && ls -- *@*.rb | head -1)"
-          brew --cache "victoriametrics/tap/${sample%.rb}"
+          for sample in Formula/*@*.rb; do
+            sample="$(basename "$sample" .rb)"
+            break
+          done
+          brew --cache "victoriametrics/tap/$sample"
 
       - name: Select formulae
         id: select
