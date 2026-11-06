@@ -41,6 +41,17 @@ jobs:
         # setup-homebrew already links the checkout as the tap on Linux; tap only when absent
         run: |
           brew tap | grep -q '^victoriametrics/tap$' || brew tap victoriametrics/tap "$GITHUB_WORKSPACE"
+          # Newer Homebrew refuses to load formulae from an untrusted tap, e.g. for `brew --cache`
+          # before install; older runners lack the command.
+          if brew help trust >/dev/null 2>&1; then
+            brew trust victoriametrics/tap
+          fi
+          # fail here, not mid-loop, if a versioned formula still cannot be loaded
+          for sample in Formula/*@*.rb; do
+            sample="$(basename "$sample" .rb)"
+            break
+          done
+          brew --cache "victoriametrics/tap/$sample"
 
       - name: Select formulae
         id: select
@@ -103,7 +114,7 @@ jobs:
             caches=""
             for f in $group; do
               caches="$caches
-          $f $(brew --cache "victoriametrics/tap/$f")"
+          $f $(brew --cache "victoriametrics/tap/$f" || true)"
             done
             remaining="$group"
             for f in $group; do
