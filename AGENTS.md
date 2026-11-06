@@ -43,8 +43,8 @@ Reference for anyone (or any tool) changing this tap.
 1. Add `Formula/<name>.rb`; `test.yml` picks it up automatically.
 2. Add it to a `bump.yml` matrix group as `<formula>:<asset prefix>:<docs path>`. Tools
    released from the same upstream repo share a group; a new upstream repo gets a new group.
-3. Add a README table row (the bump job edits the version cell, so keep the column layout)
-   and a CHANGELOG entry under `## tip`.
+3. Add a README table row and a CHANGELOG entry under `## tip`. A new upstream repo also
+   gets a version badge at the top of the README.
 4. Verify locally: `brew install`, `brew test`, `brew style victoriametrics/tap`, and for
    daemons a `brew services run` / `stop` round trip.
 
