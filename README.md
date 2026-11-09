@@ -1,91 +1,76 @@
 # VictoriaMetrics Homebrew Tap
 
+[![VictoriaMetrics version in this tap](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2FVictoriaMetrics%2Fhomebrew-tap%2Fmain%2FFormula%2Fvictoriametrics.rb&search=version%20%22%28%5B0-9%5D%5B%5E%22%5D%2A%29%22&replace=v%241&label=VictoriaMetrics&color=blue)](https://github.com/VictoriaMetrics/VictoriaMetrics/releases)
+[![VictoriaLogs version in this tap](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2FVictoriaMetrics%2Fhomebrew-tap%2Fmain%2FFormula%2Fvictorialogs.rb&search=version%20%22%28%5B0-9%5D%5B%5E%22%5D%2A%29%22&replace=v%241&label=VictoriaLogs&color=blue)](https://github.com/VictoriaMetrics/VictoriaLogs/releases)
+[![VictoriaTraces version in this tap](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2FVictoriaMetrics%2Fhomebrew-tap%2Fmain%2FFormula%2Fvictoriatraces.rb&search=version%20%22%28%5B0-9%5D%5B%5E%22%5D%2A%29%22&replace=v%241&label=VictoriaTraces&color=blue)](https://github.com/VictoriaMetrics/VictoriaTraces/releases)
+[![test](https://github.com/VictoriaMetrics/homebrew-tap/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/VictoriaMetrics/homebrew-tap/actions/workflows/test.yml)
+
 Homebrew formulae for VictoriaMetrics tools, built from the official release binaries.
 
 > [!WARNING]
-> This tap is a work in progress. Formula names and contents may still change while we finish moving Homebrew distribution here.
+> This tap is a work in progress. Formula names and contents may still change.
 
 > [!NOTE]
-> These packages are intended for development and testing. For production or enterprise deployments at scale, see the [VictoriaMetrics documentation](https://docs.victoriametrics.com/) or reach out on the [public Slack](https://slack.victoriametrics.com/).
+> These packages are for development and testing. For production deployments, see the [VictoriaMetrics documentation](https://docs.victoriametrics.com/) or ask on the [public Slack](https://slack.victoriametrics.com/).
 
 ## Install
-Update `brew` first:
+
 ```sh
 brew update
-```
-
-Homebrew only installs from taps you have trusted, so add the trust step:
-
-```sh
 brew tap victoriametrics/tap
 brew trust victoriametrics/tap
-```
-
-Then install the desired package (`vmctl` in this example):
-
-```sh
 brew install vmctl
 ```
 
-Alternatively, install by the full name, which taps and trusts this repository in one step:
+Homebrew installs only from trusted taps. Installing by the full name (`brew install victoriametrics/tap/vmctl`) taps and trusts in one step.
 
-```sh
-brew install victoriametrics/tap/vmctl
-```
+## Formulae
 
-## Available Formulae
+| Formula | Alias | Description |
+|---------|-------|-------------|
+| `vmctl` | | Migrates and verifies VictoriaMetrics data. [Docs](https://docs.victoriametrics.com/victoriametrics/vmctl/) |
+| `vmagent` | | Collects metrics and forwards them to VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmagent/) |
+| `vmalert` | | Runs alerting and recording rules against VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmalert/) |
+| `vmauth` | | HTTP proxy, auth gateway and load balancer. [Docs](https://docs.victoriametrics.com/victoriametrics/vmauth/) |
+| `victoriametrics` | `vmet`, `victoria-metrics` | Single-node VictoriaMetrics database. [Docs](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/) |
+| `victorialogs` | `vlog`, `victoria-logs` | VictoriaLogs database. [Docs](https://docs.victoriametrics.com/victorialogs/) |
+| `victoriatraces` | `vtrace`, `victoria-traces` | VictoriaTraces database. [Docs](https://docs.victoriametrics.com/victoriatraces/) |
 
-| Formula | Alias | Version | Description |
-|---------|-------|---------|-------------|
-| `vmctl` | | 1.155.0 | Command-line tool for migrating and verifying VictoriaMetrics data. [Docs](https://docs.victoriametrics.com/victoriametrics/vmctl/) |
-| `vmagent` | | 1.155.0 | Agent for collecting metrics and forwarding them to VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmagent/) |
-| `vmalert` | | 1.155.0 | Executes alerting and recording rules against VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmalert/) |
-| `vmauth` | | 1.155.0 | HTTP proxy, auth gateway and load balancer for VictoriaMetrics. [Docs](https://docs.victoriametrics.com/victoriametrics/vmauth/) |
-| `victoriametrics` | `vmet`, `victoria-metrics` | 1.155.0 | Single-node VictoriaMetrics time series database. [Docs](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/) |
-| `victorialogs` | `vlog`, `victoria-logs` | 1.53.0 | VictoriaLogs database for logs. [Docs](https://docs.victoriametrics.com/victorialogs/) |
-| `victoriatraces` | `vtrace`, `victoria-traces` | 0.13.0 | VictoriaTraces database for distributed traces. [Docs](https://docs.victoriametrics.com/victoriatraces/) |
+Binaries keep their plain names (`vmctl`, `victoria-metrics`, `victoria-logs`, ...), without the `-prod` suffix used in the release archives.
 
-The `victoriametrics` and `victorialogs` names also exist in homebrew-core. To be sure you get this tap's version, install through an alias (e.g. `brew install vmet` or `brew install victoria-metrics` once the tap is trusted) or use the full name.
+`victoriametrics` and `victorialogs` also exist in homebrew-core, and one machine can have only one of the two. Install the tap version by its alias (`brew install vmet`) or full name, and run `brew uninstall victoriametrics` first if the homebrew-core version is installed.
 
-Binaries are installed under their plain names (`vmctl`, `vmagent`, `vmalert`, `vmauth`, `victoria-metrics`, `victoria-logs`, `victoria-traces`). In the release tarballs the same binaries carry a `-prod` suffix.
+## Older versions
 
-`victoriametrics` and `victorialogs` also exist in homebrew-core. The same formula name cannot be installed from both sources on one machine; run `brew uninstall victoriametrics` (or `victorialogs`) before installing the tap version.
-
-## Installing an older version
-
-Every open-source release since 2025-08-01 is also available as a versioned formula named `name@X.Y.Z`, for example `vmctl@1.152.0` or `victorialogs@1.40.0`:
+Every open-source release since 2025-08-01, plus v1.110.0 and v1.122.0, is available as `<formula>@<version>`:
 
 ```sh
 brew search vmctl@
 brew install vmctl@1.152.0
-```
-
-Versioned formulae are keg-only, so they never replace the plain formula on your `PATH` and can be installed side by side with it. Run a binary straight from its keg:
-
-```sh
 "$(brew --prefix vmctl@1.152.0)/bin/vmctl" --version
 ```
 
-Or link it, running `brew unlink vmctl` first if the plain formula is linked:
+An older version installs next to the current one and does not replace `vmctl` on your `PATH`. To make it the default:
 
 ```sh
 brew unlink vmctl
 brew link --force vmctl@1.152.0
 ```
 
-To switch back to the plain formula:
+To switch back:
 
 ```sh
-brew unlink vmctl@1.152.0 && brew link vmctl
+brew unlink vmctl@1.152.0
+brew link vmctl
 ```
 
-Each version keeps its configuration, data and logs under its full name (for example `var/victoriametrics@1.152.0-data`), but daemons keep the default port, so only one version of a daemon can run as a service at a time.
+Each version keeps its own configuration, data and logs (for example `var/victoriametrics@1.152.0-data`). All versions of a server use the same default port, so only one can run as a service at a time.
 
-Coverage is the open-source releases published since 2025-08-01, plus v1.110.0 and v1.122.0. Enterprise-only LTS patch releases are not packaged.
+Enterprise-only LTS releases are not included.
 
-## Updating
+## Updates
 
-Formulae track the [VictoriaMetrics releases](https://github.com/VictoriaMetrics/VictoriaMetrics/releases). A scheduled workflow opens a pull request when a new release is out; merging it publishes the update.
+A daily job opens a pull request for each new upstream release. It updates the formula and adds the matching `<formula>@<version>`. A merged pull request reaches users on their next `brew update`.
 
 ## License
 

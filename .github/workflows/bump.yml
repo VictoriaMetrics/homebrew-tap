@@ -1,8 +1,8 @@
 name: bump
 
-# Groups sharing an upstream repo bump together in one PR. If both groups
-# release on the same day, the second merged PR may need a manual rebase of
-# its CHANGELOG/README hunks; this is accepted.
+# Groups sharing an upstream repo bump together in one PR. Bump PRs conflict
+# on CHANGELOG once another one merges; the next run redoes a stale branch on
+# top of main. The README shows versions through badges and is not edited here.
 
 on:
   schedule:
@@ -61,7 +61,7 @@ jobs:
             echo "All formulas are current for ${REPO} (latest: $latest)."
             bump=false
           elif git ls-remote --exit-code origin "refs/heads/${branch}" >/dev/null 2>&1; then
-            # A branch behind main conflicts on CHANGELOG/README sooner or later; redo the bump on
+            # A branch behind main conflicts on CHANGELOG sooner or later; redo the bump on
             # top of main instead of re-testing a branch that cannot merge.
             behind_main="$(gh api "repos/${GITHUB_REPOSITORY}/compare/main...${branch}" --jq .behind_by)"
             if [ "$behind_main" -gt 0 ]; then
@@ -120,10 +120,6 @@ jobs:
             for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
               grep -q "$(cat "/tmp/${asset}.sha256")" "$file"
             done
-            # shellcheck disable=SC2016  # literal markdown backticks; the middle cell is the optional alias column
-            sed -i 's/^\(| `'"${formula}"'` |[^|]*| \)'"${old_version}"' |/\1'"${VERSION}"' |/' README.md
-            # shellcheck disable=SC2016
-            grep -qE '^\| `'"${formula}"'` \|[^|]*\| '"${VERSION}"' \|' README.md
             changelog_line="* FEATURE: [${formula}](https://docs.victoriametrics.com/${docs}/): update to [v${VERSION}](https://github.com/${REPO}/releases/tag/v${VERSION})."
             awk -v line="$changelog_line" '{ print } /^## tip$/ { getline; print; print line }' CHANGELOG.md > CHANGELOG.md.new
             mv CHANGELOG.md.new CHANGELOG.md
