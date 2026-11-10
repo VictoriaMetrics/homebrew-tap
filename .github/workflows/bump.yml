@@ -1,8 +1,8 @@
 name: bump
 
-# Groups sharing an upstream repo bump together in one PR. Bump PRs conflict
-# on CHANGELOG once another one merges; the next run redoes a stale branch on
-# top of main. The README shows versions through badges and is not edited here.
+# Groups sharing an upstream repo bump together in one PR. A PR touches only
+# its own formula files, so open PRs do not conflict with each other; the
+# README (version badges) and CHANGELOG (hand-written) are not edited here.
 
 on:
   schedule:
@@ -22,13 +22,13 @@ jobs:
         include:
           - group: victoriametrics
             repo: VictoriaMetrics/VictoriaMetrics
-            formulas: "vmctl:vmutils:victoriametrics/vmctl vmagent:vmutils:victoriametrics/vmagent vmalert:vmutils:victoriametrics/vmalert vmauth:vmutils:victoriametrics/vmauth victoriametrics:victoria-metrics:victoriametrics/single-server-victoriametrics"
+            formulas: "vmctl:vmutils vmagent:vmutils vmalert:vmutils vmauth:vmutils victoriametrics:victoria-metrics"
           - group: victorialogs
             repo: VictoriaMetrics/VictoriaLogs
-            formulas: "victorialogs:victoria-logs:victorialogs"
+            formulas: "victorialogs:victoria-logs"
           - group: victoriatraces
             repo: VictoriaMetrics/VictoriaTraces
-            formulas: "victoriatraces:victoria-traces:victoriatraces"
+            formulas: "victoriatraces:victoria-traces"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -61,8 +61,7 @@ jobs:
             echo "All formulas are current for ${REPO} (latest: $latest)."
             bump=false
           elif git ls-remote --exit-code origin "refs/heads/${branch}" >/dev/null 2>&1; then
-            # A branch behind main conflicts on CHANGELOG sooner or later; redo the bump on
-            # top of main instead of re-testing a branch that cannot merge.
+            # Redo a branch that is behind main on top of main, so CI tests what would merge.
             behind_main="$(gh api "repos/${GITHUB_REPOSITORY}/compare/main...${branch}" --jq .behind_by)"
             if [ "$behind_main" -gt 0 ]; then
               echo "Bump branch ${branch} is ${behind_main} commits behind main; redoing the bump on top of main."
@@ -82,7 +81,7 @@ jobs:
             echo "behind=${behind# }"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Update formulas and changelog, open PR
+      - name: Update formulas, open PR
         if: steps.check.outputs.bump == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -97,9 +96,7 @@ jobs:
           added=()
           for pair in $BEHIND; do
             formula="${pair%%:*}"
-            rest="${pair#*:}"
-            prefix="${rest%%:*}"
-            docs="${rest#*:}"
+            prefix="${pair#*:}"
             file="Formula/${formula}.rb"
             for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
               url="https://github.com/${REPO}/releases/download/v${VERSION}/${prefix}-${asset}-v${VERSION}.tar.gz"
@@ -120,9 +117,6 @@ jobs:
             for asset in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
               grep -q "$(cat "/tmp/${asset}.sha256")" "$file"
             done
-            changelog_line="* FEATURE: [${formula}](https://docs.victoriametrics.com/${docs}/): update to [v${VERSION}](https://github.com/${REPO}/releases/tag/v${VERSION})."
-            awk -v line="$changelog_line" '{ print } /^## tip$/ { getline; print; print line }' CHANGELOG.md > CHANGELOG.md.new
-            mv CHANGELOG.md.new CHANGELOG.md
             # The newest release's versioned formula rides in this PR; the generator skips
             # excluded releases, so add only a file it actually wrote.
             versioned="Formula/${formula}@${VERSION}.rb"
@@ -130,9 +124,6 @@ jobs:
               scripts/versioned-generate.sh --repo "$REPO" --prefix "$prefix" --formula "$formula" --version "$VERSION"
               if [ -e "$versioned" ]; then
                 added+=("$versioned")
-                changelog_line="* FEATURE: [${formula}](https://docs.victoriametrics.com/${docs}/): add \`${formula}@${VERSION}\` versioned formula."
-                awk -v line="$changelog_line" '{ print } /^## tip$/ { getline; print; print line }' CHANGELOG.md > CHANGELOG.md.new
-                mv CHANGELOG.md.new CHANGELOG.md
               fi
             fi
             names="${names:+$names, }${formula}"
@@ -198,12 +189,7 @@ jobs:
           # Start from the commit this job checked out, not from the plain bump branch.
           git checkout --quiet --force --detach "$GITHUB_SHA"
           git clean -fdq
-          pairs=""
-          for pair in $FORMULAS; do
-            rest="${pair#*:}"
-            pairs="${pairs:+$pairs }${pair%%:*}:${rest%%:*}"
-          done
-          args=(--repo "$REPO" --pairs "$pairs")
+          args=(--repo "$REPO" --pairs "$FORMULAS")
           # While any formula is behind, the newest release's versioned formulae belong to
           # the plain bump PR (new or already open), not to this one.
           if [ -n "$BEHIND" ]; then
@@ -239,20 +225,15 @@ jobs:
                 entry="$pair"
               fi
             done
-            rest="${entry#*:}"
-            prefix="${rest%%:*}"
-            docs="${rest#*:}"
+            prefix="${entry#*:}"
             file="Formula/${formula}@${version}.rb"
             scripts/versioned-generate.sh --repo "$REPO" --prefix "$prefix" --formula "$formula" --version "$version"
             test -e "$file"
             added+=("$file")
-            changelog_line="* FEATURE: [${formula}](https://docs.victoriametrics.com/${docs}/): add \`${formula}@${version}\` versioned formula."
-            awk -v line="$changelog_line" '{ print } /^## tip$/ { getline; print; print line }' CHANGELOG.md > CHANGELOG.md.new
-            mv CHANGELOG.md.new CHANGELOG.md
             list="${list}- \`${formula}@${version}\`"$'\n'
           done 3<<< "$missing"
           subject="${GROUP}: add versioned formulae for ${#added[@]} releases"
-          git add -- CHANGELOG.md "${added[@]}"
+          git add -- "${added[@]}"
           if [ "$refresh" = true ]; then
             scripts/ci-push-merge.sh "$branch"
             scripts/ci-dispatch-and-wait.sh "$branch"

@@ -17,6 +17,8 @@ Reference for anyone (or any tool) changing this tap.
 - `test do` asserts `--version` and one smoke check against a running instance on a
   `free_port`; the spawned process is always terminated in `ensure`.
 - Names that also exist in homebrew-core get aliases in `Aliases/` (symlinks to the formula).
+- `CHANGELOG.md` is written by hand for changes to the tap itself. Version bumps are not
+  listed there; the bump job edits only formula files, so its PRs never conflict.
 
 ### Versioned formulae
 
@@ -41,7 +43,7 @@ Reference for anyone (or any tool) changing this tap.
 ## Adding a formula
 
 1. Add `Formula/<name>.rb`; `test.yml` picks it up automatically.
-2. Add it to a `bump.yml` matrix group as `<formula>:<asset prefix>:<docs path>`. Tools
+2. Add it to a `bump.yml` matrix group as `<formula>:<asset prefix>`. Tools
    released from the same upstream repo share a group; a new upstream repo gets a new group.
 3. Add a README table row and a CHANGELOG entry under `## tip`. A new upstream repo also
    gets a version badge at the top of the README.

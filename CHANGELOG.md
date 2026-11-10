@@ -2,6 +2,7 @@
 
 ## tip
 
+* FEATURE: version bumps are no longer listed in this changelog; see the bump pull requests and the formula history. Open bump pull requests no longer conflict with each other.
 * FEATURE: [victoriatraces](https://docs.victoriametrics.com/victoriatraces/): add `victoriatraces@0.13.0` versioned formula.
 * FEATURE: [victoriatraces](https://docs.victoriametrics.com/victoriatraces/): update to [v0.13.0](https://github.com/VictoriaMetrics/VictoriaTraces/releases/tag/v0.13.0).
 * FEATURE: [victorialogs](https://docs.victoriametrics.com/victorialogs/): update to [v1.53.0](https://github.com/VictoriaMetrics/VictoriaLogs/releases/tag/v1.53.0).
