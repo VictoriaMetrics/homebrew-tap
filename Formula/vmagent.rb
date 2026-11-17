@@ -29,6 +29,22 @@ class Vmagent < Formula
   def install
     bin.install "vmagent-prod" => "vmagent"
 
+    (bin/"vmagent_brew_services").write <<~SH
+      #!/bin/bash
+      exec "#{opt_bin}/vmagent" $(<"#{etc}/vmagent/vmagent.args")
+    SH
+    (bin/"vmagent_brew_services").chmod 0755
+
+    service_args = etc/"vmagent/vmagent.args"
+    unless service_args.exist?
+      service_args.write <<~EOS
+        -httpListenAddr=127.0.0.1:8429
+        -promscrape.config=#{etc}/vmagent/scrape.yml
+        -remoteWrite.url=http://127.0.0.1:8428/api/v1/write
+        -remoteWrite.tmpDataPath=#{var}/vmagent-remotewrite-data
+      EOS
+    end
+
     scrape_config = etc/"vmagent/scrape.yml"
     return if scrape_config.exist?
 
@@ -45,19 +61,15 @@ class Vmagent < Formula
 
   def caveats
     <<~EOS
-      The service scrapes targets from #{etc}/vmagent/scrape.yml and forwards
+      The service reads its flags from #{etc}/vmagent/vmagent.args, one per line.
+      By default it scrapes targets from #{etc}/vmagent/scrape.yml and forwards
       metrics to a local VictoriaMetrics at http://127.0.0.1:8428/api/v1/write.
+      Restart the service after editing the flags.
     EOS
   end
 
   service do
-    run [
-      opt_bin/"vmagent",
-      "-httpListenAddr=127.0.0.1:8429",
-      "-promscrape.config=#{etc}/vmagent/scrape.yml",
-      "-remoteWrite.url=http://127.0.0.1:8428/api/v1/write",
-      "-remoteWrite.tmpDataPath=#{var}/vmagent-remotewrite-data",
-    ]
+    run opt_bin/"vmagent_brew_services"
     keep_alive false
     log_path var/"log/vmagent.log"
     error_log_path var/"log/vmagent.err.log"
@@ -90,6 +102,7 @@ class Vmagent < Formula
     assert_match "vmagent", shell_output("curl -s 127.0.0.1:#{http_port}")
 
     assert_match version.to_s, shell_output("#{bin}/vmagent --version")
+    assert_predicate bin/"vmagent_brew_services", :executable?
   ensure
     begin
       Process.kill("TERM", pid)

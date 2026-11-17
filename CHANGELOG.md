@@ -2,6 +2,7 @@
 
 ## tip
 
+* FEATURE: [vmagent](https://docs.victoriametrics.com/victoriametrics/vmagent/): the service reads its flags from `etc/vmagent/vmagent.args`, so `brew services` can run vmagent with a remote `-remoteWrite.url`, auth or buffer limits. The file is written only when absent and holds the previous defaults, so existing setups behave the same.
 * FEATURE: version bumps are no longer listed in this changelog; see the bump pull requests and the formula history. Open bump pull requests no longer conflict with each other.
 * FEATURE: [victoriatraces](https://docs.victoriametrics.com/victoriatraces/): add `victoriatraces@0.13.0` versioned formula.
 * FEATURE: [victoriatraces](https://docs.victoriametrics.com/victoriatraces/): update to [v0.13.0](https://github.com/VictoriaMetrics/VictoriaTraces/releases/tag/v0.13.0).
