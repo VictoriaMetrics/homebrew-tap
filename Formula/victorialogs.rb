@@ -1,28 +1,28 @@
 class Victorialogs < Formula
   desc "Fast and easy to use database for logs"
   homepage "https://docs.victoriametrics.com/victorialogs/"
-  version "1.53.0"
+  version "1.54.0"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
       url "https://github.com/VictoriaMetrics/VictoriaLogs/releases/download/v#{version}/victoria-logs-darwin-arm64-v#{version}.tar.gz"
-      sha256 "e73406db1d291c8de66b2d63d2c6f7b25bc8c556e5b021e2f4dc04003381ce98"
+      sha256 "d6ed3199cc7cb435efb16e4e9cc3357b8737bbe96dad176d3226113ce9f6dec6"
     end
     on_intel do
       url "https://github.com/VictoriaMetrics/VictoriaLogs/releases/download/v#{version}/victoria-logs-darwin-amd64-v#{version}.tar.gz"
-      sha256 "dca4d3499913ebe79f16163c711cc86e86d6621ca79e696687e63198e4ba939b"
+      sha256 "73987e8365393dbd05f7195316b3f4915844f8f4455ffc675dba02e881a001d7"
     end
   end
 
   on_linux do
     on_arm do
       url "https://github.com/VictoriaMetrics/VictoriaLogs/releases/download/v#{version}/victoria-logs-linux-arm64-v#{version}.tar.gz"
-      sha256 "301b7ef12ff9fac7f70b155191affe07ac6212755514174461d775548699ef96"
+      sha256 "f6c4eb5bc4e2ec5a70c75f670f038122eed907b7e635b66497e80d38956561fa"
     end
     on_intel do
       url "https://github.com/VictoriaMetrics/VictoriaLogs/releases/download/v#{version}/victoria-logs-linux-amd64-v#{version}.tar.gz"
-      sha256 "55feba89713cafa952673f91b8b38e7701bb0290989263da671b47a0de16edd3"
+      sha256 "739e78c82294520b6079bc8a6ae32a1f9fb95a543092929a53a2fe9ab7383016"
     end
   end
 
